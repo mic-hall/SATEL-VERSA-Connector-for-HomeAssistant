@@ -50,7 +50,7 @@ into `config/custom_components/` and restart Home Assistant.
 Once this repository has been published:
 
 1. Open HACS → menu → Custom repositories.
-2. Add `https://github.com/mic-hall/satel-versa-bridge`, category **Integration**.
+2. Add https://github.com/mic-hall/SATEL-VERSA-Connector-for-HomeAssistant, category **Integration**.
 3. Download SATEL VERSA and restart Home Assistant.
 4. Add the integration through Devices & services.
 
