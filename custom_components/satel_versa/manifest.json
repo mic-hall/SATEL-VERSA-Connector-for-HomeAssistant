@@ -1,0 +1,12 @@
+{
+  "domain": "satel_versa",
+  "name": "SATEL VERSA",
+  "codeowners": ["@mic-hall"],
+  "config_flow": true,
+  "documentation": "https://github.com/mic-hall/satel-versa-bridge",
+  "integration_type": "device",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/mic-hall/satel-versa-bridge/issues",
+  "requirements": [],
+  "version": "0.1.0-beta.1"
+}

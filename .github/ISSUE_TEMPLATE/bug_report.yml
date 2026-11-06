@@ -1,0 +1,28 @@
+name: Bug report
+description: Report a connection or input state problem
+body:
+  - type: markdown
+    attributes:
+      value: Do not post keys, identifiers, input names/states, DCX files or packet captures.
+  - type: input
+    id: version
+    attributes:
+      label: Integration and Home Assistant versions
+    validations:
+      required: true
+  - type: input
+    id: hardware
+    attributes:
+      label: Panel, ETHM model and firmware versions
+  - type: textarea
+    id: problem
+    attributes:
+      label: Expected and observed behavior
+      description: Include reproduction steps without describing your alarm installation.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Redacted diagnostic details
+      description: Review all attached data for private information before posting.

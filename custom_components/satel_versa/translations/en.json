@@ -1,0 +1,69 @@
+{
+  "title": "SATEL VERSA",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to VERSA",
+        "description": "Disconnect DLOADX before connecting. Only input states are read.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "ethm_key": "ETHM DLOADX key",
+          "dloadx_id": "DLOADX identifier (8 hex characters)",
+          "panel_id": "VERSA identifier (8 hex characters)",
+          "inputs": "Input numbers (for example 1-8,10)",
+          "poll_interval": "Polling interval (seconds)"
+        }
+      },
+      "reconfigure": {
+        "title": "Change connection settings",
+        "description": "Re-enter both identifiers and the ETHM key. The existing connection will be briefly stopped during validation.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "ethm_key": "ETHM DLOADX key",
+          "dloadx_id": "DLOADX identifier (8 hex characters)",
+          "panel_id": "VERSA identifier (8 hex characters)",
+          "inputs": "Input numbers (for example 1-8,10)",
+          "poll_interval": "Polling interval (seconds)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect. Check the address and port, and disconnect DLOADX.",
+      "invalid_response": "Unexpected or invalid response. Check both identifiers and the ETHM key.",
+      "invalid_identifier": "Identifiers must contain exactly 8 hexadecimal characters.",
+      "invalid_key": "Use 1–12 printable ASCII characters for the ETHM key.",
+      "invalid_inputs": "Use input numbers from 1 to 30, for example 1-8,10.",
+      "invalid_interval": "Choose an interval from 1 to 60 seconds.",
+      "wrong_panel": "The VERSA identifier must match this entry. Remove and add the integration to use a different panel.",
+      "cannot_unload": "The running integration could not be stopped. Try restarting Home Assistant."
+    },
+    "abort": {
+      "already_configured": "This panel is already configured.",
+      "reconfigure_successful": "Connection settings updated."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Input polling",
+        "data": {
+          "inputs": "Input numbers (for example 1-8,10)",
+          "poll_interval": "Polling interval (seconds)"
+        }
+      }
+    },
+    "error": {
+      "invalid_inputs": "Use input numbers from 1 to 30, for example 1-8,10.",
+      "invalid_interval": "Choose an interval from 1 to 60 seconds."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "input": {
+        "name": "Input {number}"
+      }
+    }
+  }
+}

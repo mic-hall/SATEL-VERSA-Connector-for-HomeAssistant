@@ -1,0 +1,69 @@
+{
+  "title": "SATEL VERSA",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Połączenie z VERSĄ",
+        "description": "Przed połączeniem rozłącz DLOADX. Integracja odczytuje wyłącznie stany wejść.",
+        "data": {
+          "host": "Adres centrali",
+          "port": "Port",
+          "ethm_key": "Klucz DLOADX modułu ETHM",
+          "dloadx_id": "Identyfikator DLOADX (8 znaków hex)",
+          "panel_id": "Identyfikator VERSA (8 znaków hex)",
+          "inputs": "Numery wejść (np. 1-8,10)",
+          "poll_interval": "Odstęp odczytu (sekundy)"
+        }
+      },
+      "reconfigure": {
+        "title": "Zmiana połączenia",
+        "description": "Podaj ponownie oba identyfikatory i klucz ETHM. Bieżące połączenie zostanie na chwilę zatrzymane podczas sprawdzania ustawień.",
+        "data": {
+          "host": "Adres centrali",
+          "port": "Port",
+          "ethm_key": "Klucz DLOADX modułu ETHM",
+          "dloadx_id": "Identyfikator DLOADX (8 znaków hex)",
+          "panel_id": "Identyfikator VERSA (8 znaków hex)",
+          "inputs": "Numery wejść (np. 1-8,10)",
+          "poll_interval": "Odstęp odczytu (sekundy)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nie można się połączyć. Sprawdź adres i port oraz rozłącz DLOADX.",
+      "invalid_response": "Nieprawidłowa lub nieobsługiwana odpowiedź. Sprawdź oba identyfikatory i klucz ETHM.",
+      "invalid_identifier": "Identyfikatory muszą mieć dokładnie 8 znaków szesnastkowych.",
+      "invalid_key": "Klucz ETHM musi mieć od 1 do 12 drukowalnych znaków ASCII.",
+      "invalid_inputs": "Podaj numery wejść od 1 do 30, np. 1-8,10.",
+      "invalid_interval": "Wybierz odstęp od 1 do 60 sekund.",
+      "wrong_panel": "Identyfikator VERSA musi odpowiadać temu wpisowi. Aby zmienić centralę, usuń integrację i dodaj ją ponownie.",
+      "cannot_unload": "Nie udało się zatrzymać integracji. Spróbuj ponownie uruchomić Home Assistant."
+    },
+    "abort": {
+      "already_configured": "Ta centrala jest już skonfigurowana.",
+      "reconfigure_successful": "Ustawienia połączenia zostały zmienione."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Odczyt wejść",
+        "data": {
+          "inputs": "Numery wejść (np. 1-8,10)",
+          "poll_interval": "Odstęp odczytu (sekundy)"
+        }
+      }
+    },
+    "error": {
+      "invalid_inputs": "Podaj numery wejść od 1 do 30, np. 1-8,10.",
+      "invalid_interval": "Wybierz odstęp od 1 do 60 sekund."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "input": {
+        "name": "Wejście {number}"
+      }
+    }
+  }
+}
