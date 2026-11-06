@@ -39,7 +39,7 @@ def test_metadata_and_translation_keys_match():
     component = root / "custom_components/satel_versa"
     manifest = json.loads((component / "manifest.json").read_text())
     assert manifest["domain"] == "satel_versa"
-    assert manifest["version"] == "0.1.0-beta.1"
+    assert manifest["version"] == "0.1.0-beta.2"
     assert manifest["iot_class"] == "local_polling"
     assert (component / "brand/icon.png").is_file()
     english = json.loads((component / "strings.json").read_text())

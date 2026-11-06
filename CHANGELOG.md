@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.0-beta.2
+
+- Lower the tested minimum to Home Assistant 2026.10.1.
+- Test both HA 2026.10.1 and 2026.10.4 in CI using matching pinned test harnesses.
+- Update HACS compatibility metadata and installation documentation.
+
 ## 0.1.0-beta.1
 
 Initial beta for VERSA input states over ETHM-1 Plus.

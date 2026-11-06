@@ -1,12 +1,17 @@
-# Validation record for 0.1.0-beta.1
+# Validation record for 0.1.0-beta.2
 
 Validated on 2026-11-06. This document states observed scope, not general hardware
 certification or a claim that all supported input numbers were physically tested.
 
 ## Automated tests
 
-Environment: Python 3.14.7, Home Assistant 2026.10.4,
-`pytest-homeassistant-custom-component` 0.13.375, `cryptography` 50.0.1.
+Current minimum-version test: Python 3.14.7, Home Assistant **2026.10.1**,
+`pytest-homeassistant-custom-component` **0.13.372**, `cryptography` 50.0.1.
+All **52 tests passed**, with about **91% branch-inclusive coverage**.
+The initial beta was also tested on HA 2026.10.4 with harness 0.13.375.
+CI now runs both pinned versions and asserts the installed HA version explicitly.
+No integration runtime API changes were required for 2026.10.1; the previous
+HACS minimum was more restrictive than the tested compatibility.
 All environment files are outside this source tree; no global Python installation
 was changed. CI recreates the pinned HA testing stack on Linux.
 
@@ -28,8 +33,8 @@ of the integration. Ruff lint and formatting pass.
 
 Official hassfest from Home Assistant tag 2026.10.4 was run locally against this
 integration with the default validation plugins: **1 integration, 0 invalid**.
-The GitHub HACS validator has not run yet because the repository has not been
-published; the workflow is included and must pass after upload. HACS repository
+The initial publication passed the GitHub HACS validator and hassfest.
+These workflows run again for each update. HACS repository
 settings such as description/topics/Issues are configured on GitHub, not in code.
 
 ## Capture comparison

@@ -1,6 +1,6 @@
 # Publishing the prepared repository
 
-The intended repository is `mic-hall/satel-versa-bridge`. URLs and codeowner are
+The intended repository is `mic-hall/SATEL-VERSA-Connector-for-HomeAssistant`. URLs and codeowner are
 already configured for that destination. If the owner changes, update manifest
 URLs, codeowners, README links and this file before uploading.
 
@@ -23,8 +23,8 @@ Do not run `git add .` from the parent workspace.
 6. Enable GitHub private vulnerability reporting when available.
 7. Wait for the test/package and hassfest workflows. Review any failure before
    tagging a release; local tests do not substitute for remote validators.
-8. Tag `v0.1.0-beta.1`, create a GitHub **prerelease**, and attach
-   `satel_versa-0.1.0-beta.1.zip` and `SHA256SUMS`. The source ZIP is optional.
+8. Tag `v0.1.0-beta.2`, create a GitHub **prerelease**, and attach
+   `satel_versa-0.1.0-beta.2.zip` and `SHA256SUMS`. The source ZIP is optional.
 9. Users can then add the repository to HACS as a custom Integration repository.
 
 HACS listing in the default store is a separate process; it is not claimed here.

@@ -3,10 +3,10 @@
   "name": "SATEL VERSA",
   "codeowners": ["@mic-hall"],
   "config_flow": true,
-  "documentation": "https://github.com/mic-hall/satel-versa-bridge",
+  "documentation": "https://github.com/mic-hall/SATEL-VERSA-Connector-for-HomeAssistant",
   "integration_type": "device",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/mic-hall/satel-versa-bridge/issues",
+  "issue_tracker": "https://github.com/mic-hall/SATEL-VERSA-Connector-for-HomeAssistant/issues",
   "requirements": [],
-  "version": "0.1.0-beta.1"
+  "version": "0.1.0-beta.2"
 }

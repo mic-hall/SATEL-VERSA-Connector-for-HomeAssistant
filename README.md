@@ -2,7 +2,7 @@
 
 This is a custom integration allowing to read input states of SATEL VERSA alarm systems locally through an **ETHM-1 Plus**. This custom integration is distributed under the MIT license.
 
-**Beta: 0.1.0-beta.1.** The protocol has been tested with one VERSA 15 +
+**Beta: 0.1.0-beta.2.** The protocol has been tested with one VERSA 15 +
 ETHM-1 Plus installation. Other models/firmware and long-running operation
 are not yet validated. This project is independent of SATEL.
 
@@ -20,7 +20,7 @@ are not yet validated. This project is independent of SATEL.
 
 ## Requirements
 
-- Home Assistant **2026.10.4 or newer**.
+- Home Assistant **2026.10.1 or newer**.
 - A SATEL VERSA alarm board with ETHM-1 Plus and a working DLOADX LAN/WAN connection.
 - Network access from Home Assistant to the ETHM DLOADX port (usually 7090).
 - The ETHM **DLOADX key**, **DLOADX identifier** and **VERSA identifier** from

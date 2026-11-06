@@ -1,9 +1,9 @@
 # SATEL VERSA Bridge — integracja Home Assistant
 
-Lokalny odczyt stanów wejść VERSY przez ETHM-1 Plus. Wersja **0.1.0-beta.1**,
+Lokalny odczyt stanów wejść VERSY przez ETHM-1 Plus. Wersja **0.1.0-beta.2**,
 sprawdzona z VERSA 15; inne modele i firmware pozostają niezweryfikowane.
 
-Wymaga Home Assistant 2026.10.4 lub nowszego. Nie potrzebuje osobnego dodatku,
+Wymaga Home Assistant 2026.10.1 lub nowszego. Nie potrzebuje osobnego dodatku,
 kontenera, MQTT ani uruchomionego DLOADX. Przed użyciem rozłącz DLOADX.
 
 ## Instalacja
@@ -13,7 +13,7 @@ Musi powstać `custom_components/satel_versa/manifest.json`. Uruchom HA ponownie
 a następnie wybierz Ustawienia → Urządzenia i usługi → Dodaj integrację → SATEL VERSA.
 
 Po publikacji repozytorium można dodać w HACS:
-`https://github.com/mic-hall/satel-versa-bridge`, typ Integracja.
+`https://github.com/mic-hall/SATEL-VERSA-Connector-for-HomeAssistant`, typ Integracja.
 Projekt nie jest domyślnie umieszczony w katalogu HACS; dla wersji beta włącz
 wyświetlanie wydań testowych.
 
