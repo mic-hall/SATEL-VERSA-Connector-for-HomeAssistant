@@ -30,7 +30,7 @@ jobs:
       - run: ruff format --check .
       - run: python -m pytest --cov --cov-fail-under=85 --cov-report=term-missing
       - run: python tools/build_release.py
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: satel-versa-packages-${{ matrix.ha }}
           path: dist/
