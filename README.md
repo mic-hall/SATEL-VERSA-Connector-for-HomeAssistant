@@ -126,21 +126,3 @@ by Home Assistant in the config entry; protect your HA configuration and backups
 Do not attach DLOADX configuration files, packet captures or credentials to issues.
 
 See [SECURITY.md](SECURITY.md) and [TESTING.md](TESTING.md).
-
-## Development and releases
-
-Requires Python 3.14.2+ for the pinned HA test environment:
-
-```sh
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements-dev.txt
-.venv/bin/ruff check .
-.venv/bin/ruff format --check .
-.venv/bin/python -m pytest --cov --cov-report=term-missing
-.venv/bin/python tools/build_release.py
-```
-
-Tests use synthetic data and block network sockets. No private capture, actual
-panel identifier, ETHM key, DLOADX installer or decompiled code is included.
-The release tool creates an installable integration ZIP and a clean source ZIP
-using explicit file allowlists. See [PUBLISHING.md](PUBLISHING.md) before uploading.
