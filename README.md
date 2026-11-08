@@ -34,6 +34,16 @@ included in `custom_components/satel_versa/protocol` and is independent of HA.
 
 ## Installation
 
+### HACS custom repository
+
+1. Open HACS → menu → Custom repositories.
+2. Add https://github.com/mic-hall/SATEL-VERSA-Connector-for-HomeAssistant, category **Integration**.
+3. Download SATEL VERSA and restart Home Assistant.
+4. Add the integration through Devices & services.
+
+This project is prepared for a HACS custom repository; it is not listed in the
+HACS default store.
+
 ### Manual
 
 1. Download the release `satel_versa-<version>.zip` and extract it into your
@@ -44,18 +54,6 @@ included in `custom_components/satel_versa/protocol` and is independent of HA.
 
 Alternatively, copy only `custom_components/satel_versa` from this repository
 into `config/custom_components/` and restart Home Assistant.
-
-### HACS custom repository
-
-Once this repository has been published:
-
-1. Open HACS → menu → Custom repositories.
-2. Add https://github.com/mic-hall/SATEL-VERSA-Connector-for-HomeAssistant, category **Integration**.
-3. Download SATEL VERSA and restart Home Assistant.
-4. Add the integration through Devices & services.
-
-This project is prepared for a HACS custom repository; it is not listed in the
-HACS default store. Enable prereleases in HACS when installing beta releases.
 
 ## Configuration
 
