@@ -8,14 +8,23 @@ kontenera, MQTT ani uruchomionego DLOADX. Przed użyciem rozłącz DLOADX.
 
 ## Instalacja
 
+### HACS — repozytorium niestandardowe
+
+1. Otwórz HACS → menu → Repozytoria niestandardowe.
+2. Dodaj `https://github.com/mic-hall/SATEL-VERSA-Connector-for-HomeAssistant`, typ Integracja.
+3. Pobierz SATEL VERSA i uruchom Home Assistant ponownie.
+4. Dodaj integrację w Ustawienia → Urządzenia i usługi.
+
+Projekt nie znajduje się w domyślnym katalogu HACS; dla wersji beta włącz
+wyświetlanie wydań testowych.
+
+### Instalacja ręczna
+
 Rozpakuj paczkę `satel_versa-<wersja>.zip` do katalogu konfiguracji HA.
 Musi powstać `custom_components/satel_versa/manifest.json`. Uruchom HA ponownie,
 a następnie wybierz Ustawienia → Urządzenia i usługi → Dodaj integrację → SATEL VERSA.
 
-Po publikacji repozytorium można dodać w HACS:
-`https://github.com/mic-hall/SATEL-VERSA-Connector-for-HomeAssistant`, typ Integracja.
-Projekt nie jest domyślnie umieszczony w katalogu HACS; dla wersji beta włącz
-wyświetlanie wydań testowych.
+## Konfiguracja
 
 Wpisz adres, port (zwykle 7090), klucz DLOADX modułu ETHM oraz identyfikatory
 DLOADX i VERSA z okna konfiguracji komunikacji. PIN otwierania programu DLOADX
@@ -44,3 +53,12 @@ połączenia. Nie załączaj plików DCX ani nagrań sieciowych do publicznych z
 
 Pełna dokumentacja, ograniczenia i testy: [README.md](README.md),
 [TESTING.md](TESTING.md). Projekt jest niezależny od SATEL. Licencja MIT.
+
+## Eksperymentalna obsługa VERSA Plus LTE
+
+Wariant wbudowanego Ethernetu jest rozpoznawany po powitaniu `VERSA`.
+Klient czeka 2,5 s przed START, używa alternatywnego formatu odpowiedzi,
+timeoutu 15 s i pomija odczyt wyświetlacza. ETHM zachowuje swoje ustawienia.
+Nie wymaga to zmiany konfiguracji HA. Nie oznacza obsługi połączenia przez sieć LTE.
+Zmiana opiera się na dostarczonym opisie działającej instalacji; ta implementacja
+przeszła testy symulowane, ale wymaga potwierdzenia na fizycznej centrali.

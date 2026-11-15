@@ -78,3 +78,13 @@ metadata is not treated as a general authentication/permissions specification.
 - [Manifest](https://contributors.home-assistant.io/core/integrations/manifest/)
 - [Custom integration structure and brand assets](https://contributors.home-assistant.io/core/integrations/file-structure/)
 - [HACS integration requirements](https://www.hacs.xyz/docs/publish/integration/)
+
+## Unreleased VERSA Plus LTE changes (2026-11-15)
+
+The local suite passes 58 tests; Ruff lint and formatting pass. Added simulated
+built-in Ethernet transport coverage for START/input/STOP, reconnect, token
+updates, corrupt checksums, wrong panel identity, EOF cleanup, timeout during
+the START delay, explicit settings and unchanged ETHM defaults. No live panel
+connection was made for these changes. Physical VERSA Plus LTE validation remains
+pending; the supplied installation report is supporting evidence, not a hardware
+validation of this implementation. The historical beta.2 record above is unchanged.

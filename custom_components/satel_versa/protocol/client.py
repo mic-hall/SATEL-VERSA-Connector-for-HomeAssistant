@@ -12,6 +12,12 @@ from .session import CommandRejected, Phase, SessionEvidence, identifier_bytes, 
 
 
 class VersaClient:
+    """Auto-detect Ethernet profile; None selects profile timeout/display defaults.
+
+    Explicit timeout and read_display values override these defaults. The initial
+    connection/greeting budget is five seconds unless a timeout is supplied.
+    """
+
     def __init__(
         self,
         host,
@@ -20,19 +26,21 @@ class VersaClient:
         dloadx_id,
         panel_id,
         input_numbers,
-        timeout=5,
+        timeout=None,
         connector=None,
-        read_display=True,
+        read_display=None,
     ):
-        if timeout <= 0:
+        if timeout is not None and timeout <= 0:
             raise ValueError("Timeout must be positive")
         self.host, self.port = host, port
         self._key = derive_key(ethm_key)
         self._id = identifier_bytes(dloadx_id)
         self.evidence = SessionEvidence(identifier_bytes(panel_id), input_numbers)
-        self.timeout = timeout
+        self._configured_timeout = timeout
+        self.timeout = 5 if timeout is None else timeout
         self._connector = connector or asyncio.open_connection
         self._display = read_display
+        self._versa = False
         self._reader = self._writer = None
         self._token = None
         self._lock = asyncio.Lock()
@@ -63,10 +71,18 @@ class VersaClient:
 
     async def _receive(self):
         first = await self._reader.readexactly(16)
-        size = server_record_size(transform(self._key, first, True))
+        header = transform(self._key, first, True)
+        if self._versa:
+            if header[1:3] != b"\x01\x01" or header[3] < 2:
+                raise ValueError("Unsupported VERSA server header")
+            size = ((header[3] + 6 + 15) // 16) * 16
+            offset = 1
+        else:
+            size = server_record_size(header)
+            offset = 2
         wire = first + await self._reader.readexactly(size - 16)
         plain = transform(self._key, wire, True)
-        frame = parse_frame(plain, 2)
+        frame = parse_frame(plain, offset)
         if frame.opcode in (0x62, 0x64):
             raise CommandRejected(frame.opcode)
         self._token = plain[0]
@@ -91,18 +107,27 @@ class VersaClient:
             async def operation():
                 self._reader, self._writer = await self._connector(self.host, self.port)
                 greeting = transform(self._key, await self._reader.readexactly(16), True)
-                if b"ETHM" not in greeting:
+                self._versa = greeting[1:6] == b"VERSA"
+                if not self._versa and b"ETHM" not in greeting:
                     raise ValueError("Unsupported greeting or key")
                 self._token = greeting[0]
                 self.evidence.begin()
+                if self._versa:
+                    if self._configured_timeout is None:
+                        self.timeout = 15
+                        deadline.reschedule(started + self.timeout)
+                    await asyncio.sleep(2.5)
                 reply = await self._exchange(0x53, self._id, 0x73)
                 self.evidence.receive(reply.opcode, reply.body)
-                if self._display:
+                if self._display is True or (self._display is None and not self._versa):
                     reply = await self._exchange(0x4B, b"\x67", 0x6B)
                     self.evidence.receive(reply.opcode, reply.body)
 
             try:
-                await asyncio.wait_for(operation(), self.timeout)
+                self.timeout = 5 if self._configured_timeout is None else self._configured_timeout
+                started = asyncio.get_running_loop().time()
+                async with asyncio.timeout(self.timeout) as deadline:
+                    await operation()
             except BaseException:
                 await self._drop()
                 raise

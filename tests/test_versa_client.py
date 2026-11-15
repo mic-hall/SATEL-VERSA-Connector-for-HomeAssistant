@@ -1,5 +1,6 @@
 import asyncio
 import unittest
+from unittest.mock import AsyncMock, patch
 
 from custom_components.satel_versa.protocol.client import VersaClient
 from custom_components.satel_versa.protocol.codec import (
@@ -16,7 +17,9 @@ PANEL = bytes.fromhex("aabbccdd")
 
 
 class FakeModule:
-    def __init__(self):
+    def __init__(self, versa=False):
+        self.versa = versa
+        self.corrupt = False
         self.reader = asyncio.StreamReader()
         self.closed = False
         self.requests = []
@@ -26,7 +29,8 @@ class FakeModule:
         self.eof_poll = False
         self.online_events = 0
         self.active = 0
-        self.emit(transform(KEY, bytes([self.token]) + b"ETHM" + bytes(11)))
+        marker = b"VERSA" if versa else b"ETHM"
+        self.emit(transform(KEY, (bytes([self.token]) + marker).ljust(16, b"\x00")))
 
     def emit(self, wire):
         # Deliver each byte separately: no network or local listening socket.
@@ -72,8 +76,12 @@ class FakeModule:
             raise ValueError("Unexpected request")
         self.token = (self.token + 19) & 255
         inner = build_frame(op, 8, body)
-        plain = bytes([self.token, 0]) + inner
-        size = 1 + ((len(plain) - 1 + 15) // 16) * 16
+        if self.corrupt:
+            inner = inner[:-1] + bytes([inner[-1] ^ 1])
+        plain = bytes([self.token]) + (b"" if self.versa else b"\x00") + inner
+        size = (
+            ((len(plain) + 15) // 16) * 16 if self.versa else 1 + ((len(plain) - 1 + 15) // 16) * 16
+        )
         self.emit(transform(KEY, plain.ljust(size, b"\xff")))
 
     async def drain(self):
@@ -168,3 +176,88 @@ class ClientTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(module.requests.count(0x51), 4)
         self.assertTrue(module.closed)
         self.assertIsNone(client.inputs)
+
+    async def test_versa_lifecycle_and_reconnect(self):
+        client = None
+        for _ in range(2):
+            module = FakeModule(versa=True)
+            if client is None:
+                client = self.client(module)
+            else:
+                client._connector = module.connector
+            with patch(
+                "custom_components.satel_versa.protocol.client.asyncio.sleep",
+                new_callable=AsyncMock,
+            ) as sleep:
+                await client.connect()
+                sleep.assert_awaited_once_with(2.5)
+            self.assertEqual(client.timeout, 15)
+            states = await client.read_inputs()
+            self.assertTrue(states[1].violated)
+            await client.close()
+            self.assertEqual(module.requests, [0x53, 0x51, 0x46])
+
+    async def test_ethm_keeps_defaults_without_delay(self):
+        module = FakeModule()
+        client = self.client(module)
+        with patch(
+            "custom_components.satel_versa.protocol.client.asyncio.sleep", new_callable=AsyncMock
+        ) as sleep:
+            await client.connect()
+            sleep.assert_not_awaited()
+        self.assertEqual(client.timeout, 5)
+        self.assertEqual(module.requests, [0x53, 0x4B])
+        await client.close()
+
+    async def test_versa_identity_and_checksum_fail_closed(self):
+        for corrupt in (False, True):
+            module = FakeModule(versa=True)
+            module.bad_identity = not corrupt
+            module.corrupt = corrupt
+            client = self.client(module)
+            with patch(
+                "custom_components.satel_versa.protocol.client.asyncio.sleep",
+                new_callable=AsyncMock,
+            ):
+                with self.assertRaises(ValueError):
+                    await client.connect()
+            self.assertTrue(module.closed)
+            self.assertFalse(client.connected)
+            self.assertIsNone(client.inputs)
+
+    async def test_versa_explicit_short_timeout_covers_delay(self):
+        module = FakeModule(versa=True)
+        client = self.client(module, timeout=0.01)
+        with self.assertRaises(TimeoutError):
+            await client.connect()
+        self.assertEqual(module.requests, [])
+        self.assertTrue(module.closed)
+
+    async def test_versa_failed_poll_clears_snapshot(self):
+        for corrupt in (False, True):
+            module = FakeModule(versa=True)
+            client = self.client(module)
+            with patch(
+                "custom_components.satel_versa.protocol.client.asyncio.sleep",
+                new_callable=AsyncMock,
+            ):
+                await client.connect()
+            await client.read_inputs()
+            module.corrupt = corrupt
+            module.eof_poll = not corrupt
+            with self.assertRaises((ValueError, asyncio.IncompleteReadError)):
+                await client.read_inputs()
+            self.assertIsNone(client.inputs)
+            self.assertFalse(client.connected)
+            self.assertTrue(module.closed)
+
+    async def test_versa_explicit_settings_are_preserved(self):
+        module = FakeModule(versa=True)
+        client = self.client(module, timeout=8, read_display=True)
+        with patch(
+            "custom_components.satel_versa.protocol.client.asyncio.sleep", new_callable=AsyncMock
+        ):
+            await client.connect()
+        self.assertEqual(client.timeout, 8)
+        self.assertEqual(module.requests, [0x53, 0x4B])
+        await client.close()

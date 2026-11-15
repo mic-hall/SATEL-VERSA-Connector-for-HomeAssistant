@@ -2,7 +2,7 @@
 
 from typing import Any
 
-import probatio as vol
+import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigEntryState, ConfigFlowResult
 from homeassistant.const import CONF_HOST, CONF_PORT

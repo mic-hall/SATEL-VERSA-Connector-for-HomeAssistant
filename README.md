@@ -71,7 +71,7 @@ does not prove an input exists. Input 31/32 and automatic input discovery are
 not supported. ASCII key validation deliberately excludes ambiguous legacy
 Windows encodings in this first release.
 
-Setup performs START, a display query, one input read and STOP to validate the
+Setup performs START, a display query (ETHM only), one input read and STOP to validate the
 settings. It then opens the operational session. The integration never renders
 or logs the virtual keypad display.
 
@@ -107,7 +107,8 @@ through HACS, remove the repository there as well.
 - Reverse-engineered successful-session profile, not an official SATEL protocol
   implementation. Unknown greetings/records fail the operation.
 - Some startup notifications can precede input data; a poll handles at most four
-  responses under one five-second timeout. Persistent notifications fail the poll.
+  responses under one timeout (5 s for ETHM, 15 s for VERSA Plus LTE). Persistent
+  notifications fail the poll.
 - Command rejection is not automatically classified as an invalid password.
 - No names import, configuration-file import, output control or alarm panel entity.
 - A successful read is not a test of the alarm installation or a replacement for
@@ -126,3 +127,12 @@ by Home Assistant in the config entry; protect your HA configuration and backups
 Do not attach DLOADX configuration files, packet captures or credentials to issues.
 
 See [SECURITY.md](SECURITY.md) and [TESTING.md](TESTING.md).
+
+## Experimental VERSA Plus LTE support
+
+The built-in Ethernet profile is detected from the `VERSA` greeting. It uses a
+2.5-second START delay, a 15-second default timeout, its own response layout and
+skips the unsupported display query. ETHM defaults remain unchanged. No HA
+configuration changes are needed. This does not implement cellular LTE transport.
+The implementation is based on a supplied working-installation report and tested
+with simulated transport; physical VERSA Plus LTE validation remains pending.

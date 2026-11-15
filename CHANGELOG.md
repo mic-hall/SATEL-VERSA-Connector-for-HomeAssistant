@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+- Detect the VERSA Plus LTE built-in Ethernet profile from its greeting.
+- Use its response layout, 2.5-second START delay and 15-second default timeout;
+  skip the unsupported display query for this profile only.
+- Preserve ETHM defaults and validate checksums and panel identity for both profiles.
+- Correct the configuration schema import to voluptuous.
+- Add simulated LTE lifecycle, reconnect and rejection tests. Hardware validation
+  of this implementation on VERSA Plus LTE remains pending.
+
 ## 0.1.0-beta.2
 
 - Lower the tested minimum to Home Assistant 2026.10.1.
