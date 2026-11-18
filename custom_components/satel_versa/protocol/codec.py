@@ -109,7 +109,7 @@ def request_record(key, token, nonce, opcode, body):
     # Explicitly limited to observed session boundaries, input poll, display query.
     if not (
         (opcode in (0x53, 0x46) and len(body) == 4)
-        or (opcode == 0x51 and body == b"\x01")
+        or (opcode == 0x51 and body in (b"\x01", b"\x09"))
         or (opcode == 0x4B and body == b"\x67")
     ):
         raise ValueError("Request outside supported profile")

@@ -44,6 +44,11 @@ class CodecTests(unittest.TestCase):
             request_record(key, 1, 2, 0x52, bytes(6))
         with self.assertRaises(ValueError):
             request_record(key, 1, 2, 0x4B, b"\x01")
+        wire = request_record(key, 1, 2, 0x51, b"\x09")
+        self.assertEqual(parse_frame(transform(key, wire, True), 1).body, b"\x09")
+        for selector in (b"\x02", b"\x0a", b"\x09\x01"):
+            with self.assertRaises(ValueError):
+                request_record(key, 1, 2, 0x51, selector)
         header = bytearray(16)
         header[1:5] = bytes([0, 1, 1, 27])
         self.assertEqual(server_record_size(header), 49)

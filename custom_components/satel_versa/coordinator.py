@@ -1,6 +1,7 @@
 """Shared polling, availability and bounded reconnect backoff."""
 
 import logging
+from dataclasses import dataclass
 from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
@@ -12,6 +13,7 @@ from .const import (
     CONF_DLOADX_ID,
     CONF_ETHM_KEY,
     CONF_INPUTS,
+    CONF_OUTPUTS,
     CONF_PANEL_ID,
     CONF_POLL_INTERVAL,
     DEFAULT_POLL_INTERVAL,
@@ -20,6 +22,7 @@ from .const import (
 )
 from .protocol import VersaClient
 from .protocol.inputs import InputState
+from .protocol.outputs import OutputIndicator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,14 +37,22 @@ def create_client(data: dict, options: dict | None = None) -> VersaClient:
         data[CONF_DLOADX_ID],
         data[CONF_PANEL_ID],
         settings[CONF_INPUTS],
+        output_numbers=settings.get(CONF_OUTPUTS, []),
     )
 
 
-class VersaCoordinator(DataUpdateCoordinator[dict[int, InputState]]):
-    """One connection and poll for all configured inputs."""
+@dataclass(frozen=True)
+class VersaSnapshot:
+    inputs: dict[int, InputState]
+    outputs: dict[int, OutputIndicator]
+
+
+class VersaCoordinator(DataUpdateCoordinator[VersaSnapshot]):
+    """One connection for a complete input and optional output snapshot."""
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.client = create_client(entry.data, entry.options)
+        self._outputs = entry.options.get(CONF_OUTPUTS, entry.data.get(CONF_OUTPUTS, []))
         self._normal_interval = float(
             entry.options.get(
                 CONF_POLL_INTERVAL, entry.data.get(CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL)
@@ -58,13 +69,14 @@ class VersaCoordinator(DataUpdateCoordinator[dict[int, InputState]]):
             always_update=False,
         )
 
-    async def _async_update_data(self) -> dict[int, InputState]:
+    async def _async_update_data(self) -> VersaSnapshot:
         if self._closing:
             raise UpdateFailed("Integration is stopping")
         try:
             if not self.client.connected:
                 await self.client.connect()
             states = await self.client.read_inputs()
+            outputs = await self.client.read_outputs() if self._outputs else ()
         except (OSError, TimeoutError, ValueError, EOFError) as err:
             self._failures += 1
             delay = min(MAX_RETRY_SECONDS, max(5, 2 ** min(self._failures, 6)))
@@ -73,7 +85,10 @@ class VersaCoordinator(DataUpdateCoordinator[dict[int, InputState]]):
             raise UpdateFailed("VERSA connection or response failed") from err
         self._failures = 0
         self.update_interval = timedelta(seconds=self._normal_interval)
-        return {state.number: state for state in states}
+        return VersaSnapshot(
+            {state.number: state for state in states},
+            {state.number: state for state in outputs},
+        )
 
     async def async_close(self) -> None:
         """Close protocol and socket; repeated calls are harmless."""

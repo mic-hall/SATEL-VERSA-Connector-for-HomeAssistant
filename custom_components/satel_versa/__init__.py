@@ -1,4 +1,4 @@
-"""Read-only SATEL VERSA input states over ETHM-1 Plus."""
+"""Read-only SATEL VERSA inputs and optional ETHM output indicators."""
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_HOMEASSISTANT_STOP, Platform
@@ -6,7 +6,7 @@ from homeassistant.core import HomeAssistant
 
 from .coordinator import VersaCoordinator
 
-PLATFORMS = [Platform.BINARY_SENSOR]
+PLATFORMS = [Platform.BINARY_SENSOR, Platform.SENSOR]
 type VersaConfigEntry = ConfigEntry[VersaCoordinator]
 
 

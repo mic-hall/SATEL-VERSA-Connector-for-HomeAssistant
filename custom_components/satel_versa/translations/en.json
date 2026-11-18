@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Connect to VERSA",
-        "description": "Disconnect DLOADX before connecting. Only input states are read.",
+        "description": "Disconnect DLOADX before connecting. Optional ETHM outputs show DLOADX indicator colors, not yet verified as physical ON/OFF. The program opening PIN is not needed.",
         "data": {
           "host": "Host",
           "port": "Port",
@@ -12,7 +12,8 @@
           "dloadx_id": "DLOADX identifier (8 hex characters)",
           "panel_id": "VERSA identifier (8 hex characters)",
           "inputs": "Input numbers (for example 1-8,10)",
-          "poll_interval": "Polling interval (seconds)"
+          "poll_interval": "Polling interval (seconds)",
+          "outputs": "ETHM output numbers (optional, e.g. 1-4; blank disables polling)"
         }
       },
       "reconfigure": {
@@ -25,7 +26,8 @@
           "dloadx_id": "DLOADX identifier (8 hex characters)",
           "panel_id": "VERSA identifier (8 hex characters)",
           "inputs": "Input numbers (for example 1-8,10)",
-          "poll_interval": "Polling interval (seconds)"
+          "poll_interval": "Polling interval (seconds)",
+          "outputs": "ETHM output numbers (optional, e.g. 1-4; blank disables polling)"
         }
       }
     },
@@ -37,7 +39,8 @@
       "invalid_inputs": "Use input numbers from 1 to 30, for example 1-8,10.",
       "invalid_interval": "Choose an interval from 1 to 60 seconds.",
       "wrong_panel": "The VERSA identifier must match this entry. Remove and add the integration to use a different panel.",
-      "cannot_unload": "The running integration could not be stopped. Try restarting Home Assistant."
+      "cannot_unload": "The running integration could not be stopped. Try restarting Home Assistant.",
+      "invalid_outputs": "Use output numbers from 1 to 12, or leave blank."
     },
     "abort": {
       "already_configured": "This panel is already configured.",
@@ -47,22 +50,35 @@
   "options": {
     "step": {
       "init": {
-        "title": "Input polling",
+        "title": "Input and output polling",
         "data": {
           "inputs": "Input numbers (for example 1-8,10)",
-          "poll_interval": "Polling interval (seconds)"
-        }
+          "poll_interval": "Polling interval (seconds)",
+          "outputs": "ETHM output numbers (optional, e.g. 1-4; blank disables polling)"
+        },
+        "description": "Outputs are for ETHM-1 Plus only. States are green, red or blinking. Physical ON/OFF semantics are not yet verified."
       }
     },
     "error": {
       "invalid_inputs": "Use input numbers from 1 to 30, for example 1-8,10.",
-      "invalid_interval": "Choose an interval from 1 to 60 seconds."
+      "invalid_interval": "Choose an interval from 1 to 60 seconds.",
+      "invalid_outputs": "Use output numbers from 1 to 12, or leave blank."
     }
   },
   "entity": {
     "binary_sensor": {
       "input": {
         "name": "Input {number}"
+      }
+    },
+    "sensor": {
+      "output_indicator": {
+        "name": "Output {number} indicator",
+        "state": {
+          "green": "Green",
+          "red": "Red",
+          "blinking_green_red": "Blinking green/red"
+        }
       }
     }
   }

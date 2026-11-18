@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Połączenie z VERSĄ",
-        "description": "Przed połączeniem rozłącz DLOADX. Integracja odczytuje wyłącznie stany wejść.",
+        "description": "Rozłącz DLOADX przed połączeniem. Opcjonalne wyjścia ETHM pokazują kolory wskaźników DLOADX, niepotwierdzone jako fizyczne ON/OFF. PIN otwierania programu nie jest potrzebny.",
         "data": {
           "host": "Adres centrali",
           "port": "Port",
@@ -12,7 +12,8 @@
           "dloadx_id": "Identyfikator DLOADX (8 znaków hex)",
           "panel_id": "Identyfikator VERSA (8 znaków hex)",
           "inputs": "Numery wejść (np. 1-8,10)",
-          "poll_interval": "Odstęp odczytu (sekundy)"
+          "poll_interval": "Odstęp odczytu (sekundy)",
+          "outputs": "Numery wyjść ETHM (opcjonalne, np. 1-4; puste wyłącza odczyt)"
         }
       },
       "reconfigure": {
@@ -25,7 +26,8 @@
           "dloadx_id": "Identyfikator DLOADX (8 znaków hex)",
           "panel_id": "Identyfikator VERSA (8 znaków hex)",
           "inputs": "Numery wejść (np. 1-8,10)",
-          "poll_interval": "Odstęp odczytu (sekundy)"
+          "poll_interval": "Odstęp odczytu (sekundy)",
+          "outputs": "Numery wyjść ETHM (opcjonalne, np. 1-4; puste wyłącza odczyt)"
         }
       }
     },
@@ -37,7 +39,8 @@
       "invalid_inputs": "Podaj numery wejść od 1 do 30, np. 1-8,10.",
       "invalid_interval": "Wybierz odstęp od 1 do 60 sekund.",
       "wrong_panel": "Identyfikator VERSA musi odpowiadać temu wpisowi. Aby zmienić centralę, usuń integrację i dodaj ją ponownie.",
-      "cannot_unload": "Nie udało się zatrzymać integracji. Spróbuj ponownie uruchomić Home Assistant."
+      "cannot_unload": "Nie udało się zatrzymać integracji. Spróbuj ponownie uruchomić Home Assistant.",
+      "invalid_outputs": "Podaj numery wyjść od 1 do 12 albo pozostaw puste."
     },
     "abort": {
       "already_configured": "Ta centrala jest już skonfigurowana.",
@@ -47,22 +50,35 @@
   "options": {
     "step": {
       "init": {
-        "title": "Odczyt wejść",
+        "title": "Odczyt wejść i wyjść",
         "data": {
           "inputs": "Numery wejść (np. 1-8,10)",
-          "poll_interval": "Odstęp odczytu (sekundy)"
-        }
+          "poll_interval": "Odstęp odczytu (sekundy)",
+          "outputs": "Numery wyjść ETHM (opcjonalne, np. 1-4; puste wyłącza odczyt)"
+        },
+        "description": "Wyjścia tylko dla ETHM-1 Plus. Stany: zielony, czerwony lub migający. Znaczenie fizycznego ON/OFF nie jest jeszcze potwierdzone."
       }
     },
     "error": {
       "invalid_inputs": "Podaj numery wejść od 1 do 30, np. 1-8,10.",
-      "invalid_interval": "Wybierz odstęp od 1 do 60 sekund."
+      "invalid_interval": "Wybierz odstęp od 1 do 60 sekund.",
+      "invalid_outputs": "Podaj numery wyjść od 1 do 12 albo pozostaw puste."
     }
   },
   "entity": {
     "binary_sensor": {
       "input": {
         "name": "Wejście {number}"
+      }
+    },
+    "sensor": {
+      "output_indicator": {
+        "name": "Wskaźnik wyjścia {number}",
+        "state": {
+          "green": "Zielony",
+          "red": "Czerwony",
+          "blinking_green_red": "Migający zielony/czerwony"
+        }
       }
     }
   }

@@ -62,3 +62,24 @@ timeoutu 15 s i pomija odczyt wyświetlacza. ETHM zachowuje swoje ustawienia.
 Nie wymaga to zmiany konfiguracji HA. Nie oznacza obsługi połączenia przez sieć LTE.
 Zmiana opiera się na dostarczonym opisie działającej instalacji; ta implementacja
 przeszła testy symulowane, ale wymaga potwierdzenia na fizycznej centrali.
+
+## Eksperymentalne wskaźniki wyjść ETHM
+
+W opcjach **Konfiguruj** wpisz numery w polu **Numery wyjść ETHM**, np.
+`1-4,12`. Puste pole wyłącza dodatkowy odczyt; jest to ustawienie domyślne
+również dla istniejących instalacji. Pole jest też dostępne przy dodawaniu
+integracji i zmianie konfiguracji połączenia. Wybieraj tylko faktycznie
+skonfigurowane pozycje1–12. Nie wykrywamy obecności ani nazw wyjść.
+Obsługa wyjść dotyczy obecnie wyłącznie ETHM-1 Plus.
+
+Powstaną encje `sensor` **Wskaźnik wyjścia N**, przypisane do urządzenia VERSA.
+Pokazują **Zielony**, **Czerwony**, **Migający zielony/czerwony**, zgodnie z
+podglądem DLOADX. Nie są przełącznikami ani potwierdzonym fizycznym ON/OFF.
+Numerację i kolory odtworzono z kodu DLOADX, format potwierdzono na18 odpowiedziach
+ze stałymi danymi. Fizyczne zmiany wyjść oraz znaczenie migania wymagają walidacji.
+
+Wybranie wyjść dodaje jeden wspólny odczyt na cykl, w tej samej sesji co wejścia.
+Błąd odczytu powoduje niedostępność encji do czasu poprawnego pełnego cyklu.
+Usunięcie numeru z listy usuwa encję po przeładowaniu. Surowe bajty statusu
+nie trafiają do atrybutów encji ani diagnostyki. Sterowanie wyjściami nie jest
+zaimplementowane.

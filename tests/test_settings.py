@@ -1,6 +1,6 @@
 import pytest
 
-from custom_components.satel_versa.settings import parse_inputs, validate_settings
+from custom_components.satel_versa.settings import parse_inputs, parse_outputs, validate_settings
 
 from .conftest import FORM
 
@@ -31,3 +31,16 @@ def test_bad_ranges(value):
 def test_credentials_and_interval(patch):
     with pytest.raises(ValueError):
         validate_settings(FORM | patch)
+
+
+def test_optional_outputs_and_legacy_configuration():
+    assert parse_outputs(" ") == []
+    assert parse_outputs("1-3,3,12") == [1, 2, 3, 12]
+    assert validate_settings(FORM)["outputs"] == []
+    assert validate_settings(FORM | {"outputs": "1,12"})["outputs"] == [1, 12]
+
+
+@pytest.mark.parametrize("value", ["0", "13", "1-30", "3-1", "1,,2", None, [1]])
+def test_invalid_output_ranges(value):
+    with pytest.raises(ValueError, match="invalid_outputs"):
+        parse_outputs(value)

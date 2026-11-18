@@ -4,6 +4,7 @@ from .const import (
     CONF_DLOADX_ID,
     CONF_ETHM_KEY,
     CONF_INPUTS,
+    CONF_OUTPUTS,
     CONF_PANEL_ID,
     CONF_POLL_INTERVAL,
     DEFAULT_POLL_INTERVAL,
@@ -29,6 +30,21 @@ def parse_inputs(value: str) -> list[int]:
     return sorted(result)
 
 
+def parse_outputs(value: str) -> list[int]:
+    """Optional explicit output positions; blank disables the extra poll."""
+    if not isinstance(value, str):
+        raise ValueError("invalid_outputs")
+    if not value.strip():
+        return []
+    try:
+        numbers = parse_inputs(value)
+    except ValueError as err:
+        raise ValueError("invalid_outputs") from err
+    if any(number > 12 for number in numbers):
+        raise ValueError("invalid_outputs")
+    return numbers
+
+
 def validate_settings(data: dict) -> dict:
     """Normalize UI settings without silently truncating credentials."""
     result = dict(data)
@@ -47,6 +63,7 @@ def validate_settings(data: dict) -> dict:
     ):
         raise ValueError("invalid_key")
     result[CONF_INPUTS] = parse_inputs(data[CONF_INPUTS])
+    result[CONF_OUTPUTS] = parse_outputs(data.get(CONF_OUTPUTS, ""))
     interval = data.get(CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL)
     if (
         isinstance(interval, bool)

@@ -88,3 +88,23 @@ the START delay, explicit settings and unchanged ETHM defaults. No live panel
 connection was made for these changes. Physical VERSA Plus LTE validation remains
 pending; the supplied installation report is supporting evidence, not a hardware
 validation of this implementation. The historical beta.2 record above is unchanged.
+
+## Unreleased ETHM output indicators (2026-11-18)
+
+The local suite passes 79 tests with about 93% branch-inclusive coverage; Ruff
+lint and formatting pass. Coverage includes all 256 flag values for each of
+12 output positions, malformed profiles, selector restrictions, serialized
+input/output reads, token updates, notifications, timeout/EOF/checksum cleanup,
+and rejecting output polling for the LTE profile before START.
+
+HA fixtures verify optional setup/options validation, enum states, stable IDs,
+association with the existing panel device, unavailable/recovery/unload behavior,
+removal of deselected entities and no additional polling for legacy entries.
+Raw flag bytes are not entity attributes or diagnostics.
+
+The integration codec decrypted and parsed 18 recorded ETHM output replies and
+regenerated 18 output requests byte for byte from a new private capture. All
+output replies were constant. This confirms the 71/09 wire layout, not physical
+ON/OFF semantics, blinking semantics or behavior of the new client against live
+hardware. Output polling remains opt-in, read-only and ETHM-only. No physical
+panel connection or HA deployment was performed for this change.

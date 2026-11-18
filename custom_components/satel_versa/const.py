@@ -5,6 +5,7 @@ CONF_ETHM_KEY = "ethm_key"
 CONF_DLOADX_ID = "dloadx_id"
 CONF_PANEL_ID = "panel_id"
 CONF_INPUTS = "inputs"
+CONF_OUTPUTS = "outputs"
 CONF_POLL_INTERVAL = "poll_interval"
 DEFAULT_PORT = 7090
 DEFAULT_POLL_INTERVAL = 1

@@ -71,7 +71,8 @@ does not prove an input exists. Input 31/32 and automatic input discovery are
 not supported. ASCII key validation deliberately excludes ambiguous legacy
 Windows encodings in this first release.
 
-Setup performs START, a display query (ETHM only), one input read and STOP to validate the
+Setup performs START, a display query (ETHM only), one input read, an optional
+output indicator read and STOP to validate the
 settings. It then opens the operational session. The integration never renders
 or logs the virtual keypad display.
 
@@ -111,6 +112,8 @@ through HACS, remove the repository there as well.
   notifications fail the poll.
 - Command rejection is not automatically classified as an invalid password.
 - No names import, configuration-file import, output control or alarm panel entity.
+- Experimental output indicators report DLOADX colors; physical ON/OFF semantics
+  have not been verified.
 - A successful read is not a test of the alarm installation or a replacement for
   its independent alarm functions.
 
@@ -136,3 +139,25 @@ skips the unsupported display query. ETHM defaults remain unchanged. No HA
 configuration changes are needed. This does not implement cellular LTE transport.
 The implementation is based on a supplied working-installation report and tested
 with simulated transport; physical VERSA Plus LTE validation remains pending.
+
+## Experimental ETHM output indicator entities
+
+In Configure, enter **ETHM output numbers**, for example `1-4,12`. Leave blank
+(the default for existing entries) to disable the extra read. Select only output
+positions configured on your panel. The supported selection is 1–12; no output
+presence or name discovery is performed. Setup and Reconfigure also accept this
+optional field. Output polling is currently restricted to ETHM-1 Plus.
+
+Each selected position creates a `sensor` named **Output N indicator**, attached
+to the existing VERSA device. Its states match the DLOADX indicator: `green`,
+`red`, `blinking_green_red`. These are enum sensors, not switches or physical
+ON/OFF binary sensors. The UI colors and numbering were recovered from DLOADX;
+the wire layout was checked against 18 recorded replies with constant data.
+Changes of physical outputs and the meaning of the blinking flag remain unverified.
+
+Enabling outputs adds one shared read per polling cycle, regardless of how many
+outputs are selected. Input and output operations use the same serialized session.
+A failed read makes all entities unavailable until the complete cycle succeeds;
+old states are not published as fresh data. Removing a selected output removes
+its entity on reload. Raw status bytes are not exposed in entity attributes or
+integration diagnostics. No output switching command is implemented.

@@ -20,6 +20,8 @@ class FakeModule:
     def __init__(self, versa=False):
         self.versa = versa
         self.corrupt = False
+        self.bad_output = False
+        self.output_notification = False
         self.reader = asyncio.StreamReader()
         self.closed = False
         self.requests = []
@@ -61,9 +63,19 @@ class FakeModule:
                 return
             if self.hang_poll:
                 return
-            if frame.body != b"\x01":
+            if frame.body == b"\x09":
+                op, body = 0x71, bytearray(16)
+                body[0] = 1 if self.bad_output else 9
+                body[4] = 0x80
+                body[15] = 0x10
+                if self.output_notification:
+                    self.output_notification = False
+                    body = b"\x07\x1a\x00"
+            elif frame.body != b"\x01":
                 raise ValueError("Wrong selector")
-            if self.online_events:
+            if frame.body == b"\x09":
+                pass
+            elif self.online_events:
                 remaining = self.online_events
                 self.online_events -= 1
                 body = b"\x07\x1a\x00" if remaining % 2 == 0 else b"\x07\x71\x00\x00\x00"
@@ -261,3 +273,50 @@ class ClientTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(client.timeout, 8)
         self.assertEqual(module.requests, [0x53, 0x4B])
         await client.close()
+
+    async def test_output_poll_and_concurrent_input_reads(self):
+        module = FakeModule()
+        client = self.client(module, output_numbers=[1, 12])
+        await client.connect()
+        module.output_notification = True
+        outputs, inputs = await asyncio.gather(client.read_outputs(), client.read_inputs())
+        self.assertEqual(
+            [state.indicator.value for state in outputs], ["red", "blinking_green_red"]
+        )
+        self.assertTrue(inputs[1].violated)
+        self.assertEqual(client.output_indicators, outputs)
+        self.assertEqual(module.requests.count(0x51), 3)
+        await client.close()
+        self.assertIsNone(client.output_indicators)
+
+    async def test_output_failure_discards_inputs_and_output_snapshot(self):
+        for failure in ("bad_output", "corrupt", "eof_poll", "hang_poll"):
+            module = FakeModule()
+            client = self.client(module, output_numbers=[1], timeout=0.05)
+            await client.connect()
+            await client.read_inputs()
+            await client.read_outputs()
+            setattr(module, failure, True)
+            with self.assertRaises((ValueError, TimeoutError, asyncio.IncompleteReadError)):
+                await client.read_outputs()
+            self.assertIsNone(client.inputs)
+            self.assertIsNone(client.output_indicators)
+            self.assertFalse(client.connected)
+            self.assertTrue(module.closed)
+
+    async def test_disabled_outputs_never_send_extra_request(self):
+        module = FakeModule()
+        client = self.client(module)
+        await client.connect()
+        before = list(module.requests)
+        self.assertEqual(await client.read_outputs(), ())
+        self.assertEqual(module.requests, before)
+        await client.close()
+
+    async def test_versa_output_configuration_rejected_before_start(self):
+        module = FakeModule(versa=True)
+        client = self.client(module, output_numbers=[1])
+        with self.assertRaises(ValueError):
+            await client.connect()
+        self.assertEqual(module.requests, [])
+        self.assertTrue(module.closed)

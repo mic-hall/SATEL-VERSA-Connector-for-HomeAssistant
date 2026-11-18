@@ -51,10 +51,14 @@ class VersaInput(CoordinatorEntity[VersaCoordinator], BinarySensorEntity):
 
     @property
     def available(self) -> bool:
-        return super().available and self._number in (self.coordinator.data or {})
+        return (
+            super().available
+            and self.coordinator.data is not None
+            and self._number in self.coordinator.data.inputs
+        )
 
     @property
     def is_on(self) -> bool | None:
         if not self.available:
             return None
-        return self.coordinator.data[self._number].violated
+        return self.coordinator.data.inputs[self._number].violated

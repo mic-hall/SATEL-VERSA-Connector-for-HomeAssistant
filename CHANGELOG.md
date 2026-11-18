@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add opt-in ETHM output indicator sensors for positions 1–12, with green, red
+  and blinking green/red states matching DLOADX. Physical ON/OFF is unverified.
+- Add output selection to setup/reconfiguration/options, serialized read-only
+  selector9 polling, unavailable/recovery handling and output entity cleanup.
+- Leave output polling disabled for existing entries; reject LTE output polling.
+
 - Detect the VERSA Plus LTE built-in Ethernet profile from its greeting.
 - Use its response layout, 2.5-second START delay and 15-second default timeout;
   skip the unsupported display query for this profile only.
