@@ -83,3 +83,33 @@ Błąd odczytu powoduje niedostępność encji do czasu poprawnego pełnego cykl
 Usunięcie numeru z listy usuwa encję po przeładowaniu. Surowe bajty statusu
 nie trafiają do atrybutów encji ani diagnostyki. Sterowanie wyjściami nie jest
 zaimplementowane.
+
+## Opcjonalne encje stref ETHM
+
+W **Konfiguruj → Strefy ETHM** wpisz `1` (A), `2` (B) lub `1,2` (obie).
+Pole jest też w konfiguratorze dodawania integracji i zmiany połączenia. Puste
+pole wyłącza dodatkowy odczyt i jest domyślne dla istniejących instalacji.
+Obsługa dotyczy ETHM-1 Plus; wariant LTE odrzuca tę opcję przed START.
+
+Każda wybrana strefa ma encję **Strefa N — czuwanie**: Rozbrojona, Pełne,
+Nocne, Dzienne. Osobne czujniki pokazują czas na wejście, czas na wyjście,
+alarm, alarm pożarowy, sabotażowy i ostrzegawczy (cichy). Podczas czasu na
+wyjście tryb pokazuje wybrany tryb uzbrojenia, dlatego sprawdzaj też osobną
+flagę odliczania przed uznaniem strefy za w pełni uzbrojoną.
+
+Pamięci alarmów i flagi ACPO są osobnymi encjami, domyślnie wyłączonymi
+w rejestrze encji; można je włączyć indywidualnie. Pamięć pożaru nie włącza
+czujnika bieżącego alarmu pożarowego. Nazwa zwykłej flagi to **Alarm**, zgodnie
+z DLOADX; nie przypisujemy jej jeszcze jednoznacznie do alarmu włamaniowego.
+Nie dodano uzbrajania, rozbrajania ani encji alarm_control_panel.
+
+Wszystkie wybrane strefy korzystają z jednego odczytu na cykl. Błąd dowolnego
+skonfigurowanego odczytu powoduje niedostępność encji do czasu poprawnego pełnego
+cyklu. Usunięte z listy strefy tracą encje po przeładowaniu. Informacje o użytkowniku
+uzbrajającym nie są udostępniane w HA.
+
+Uzbrojenie i rozbrojenie obu stref skorelowano z działaniami użytkownika na jednej
+instalacji VERSA + ETHM. Czuwanie pełne i czas na wyjście odczytano w tym samym
+nagraniu. Tryby nocny/dzienny, czas na wejście, alarmy i ich pamięci rozpoznano
+z kodu DLOADX, ale nie potwierdzono aktywnymi przykładami sprzętowymi. Nowy kod
+klienta i encje HA przeszły testy automatyczne; nie wdrażano ich jeszcze do HA.

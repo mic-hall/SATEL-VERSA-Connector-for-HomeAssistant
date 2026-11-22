@@ -15,13 +15,14 @@ from .const import (
     CONF_INPUTS,
     CONF_OUTPUTS,
     CONF_PANEL_ID,
+    CONF_PARTITIONS,
     CONF_POLL_INTERVAL,
     DEFAULT_POLL_INTERVAL,
     DEFAULT_PORT,
     DOMAIN,
 )
 from .coordinator import create_client
-from .settings import parse_inputs, parse_outputs, validate_settings
+from .settings import parse_inputs, parse_outputs, parse_partitions, validate_settings
 
 
 def connection_schema(defaults: dict | None = None) -> vol.Schema:
@@ -45,6 +46,9 @@ def connection_schema(defaults: dict | None = None) -> vol.Schema:
             vol.Optional(
                 CONF_OUTPUTS, default=",".join(map(str, defaults.get(CONF_OUTPUTS, [])))
             ): str,
+            vol.Optional(
+                CONF_PARTITIONS, default=",".join(map(str, defaults.get(CONF_PARTITIONS, [])))
+            ): str,
             vol.Required(
                 CONF_POLL_INTERVAL, default=defaults.get(CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL)
             ): vol.All(vol.Coerce(float), vol.Range(min=1, max=60)),
@@ -60,6 +64,8 @@ async def validate_connection(data: dict) -> None:
         await client.read_inputs()
         if data.get(CONF_OUTPUTS):
             await client.read_outputs()
+        if data.get(CONF_PARTITIONS):
+            await client.read_partitions()
     finally:
         try:
             await client.close()
@@ -147,19 +153,31 @@ class VersaOptionsFlow(config_entries.OptionsFlow):
             try:
                 inputs = parse_inputs(user_input[CONF_INPUTS])
                 outputs = parse_outputs(user_input.get(CONF_OUTPUTS, ""))
+                partitions = parse_partitions(user_input.get(CONF_PARTITIONS, ""))
                 interval = float(user_input[CONF_POLL_INTERVAL])
                 if not 1 <= interval <= 60:
                     raise ValueError("invalid_interval")
             except ValueError as err:
                 errors["base"] = (
                     err.args[0]
-                    if err.args[0] in ("invalid_inputs", "invalid_outputs", "invalid_interval")
+                    if err.args[0]
+                    in (
+                        "invalid_inputs",
+                        "invalid_outputs",
+                        "invalid_partitions",
+                        "invalid_interval",
+                    )
                     else "invalid_interval"
                 )
             else:
                 return self.async_create_entry(
                     title="",
-                    data={CONF_INPUTS: inputs, CONF_OUTPUTS: outputs, CONF_POLL_INTERVAL: interval},
+                    data={
+                        CONF_INPUTS: inputs,
+                        CONF_OUTPUTS: outputs,
+                        CONF_PARTITIONS: partitions,
+                        CONF_POLL_INTERVAL: interval,
+                    },
                 )
         defaults = dict(self.config_entry.data) | dict(self.config_entry.options)
         schema = vol.Schema(
@@ -167,6 +185,9 @@ class VersaOptionsFlow(config_entries.OptionsFlow):
                 vol.Required(CONF_INPUTS, default=",".join(map(str, defaults[CONF_INPUTS]))): str,
                 vol.Optional(
                     CONF_OUTPUTS, default=",".join(map(str, defaults.get(CONF_OUTPUTS, [])))
+                ): str,
+                vol.Optional(
+                    CONF_PARTITIONS, default=",".join(map(str, defaults.get(CONF_PARTITIONS, [])))
                 ): str,
                 vol.Required(CONF_POLL_INTERVAL, default=defaults[CONF_POLL_INTERVAL]): vol.All(
                     vol.Coerce(float), vol.Range(min=1, max=60)

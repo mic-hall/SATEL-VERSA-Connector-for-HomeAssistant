@@ -28,6 +28,7 @@ async def test_entities_update_unavailable_recover_and_unload(hass, mock_client)
     assert entity_id is not None
     assert hass.states.get(entity_id).state == "on"
     mock_client.read_outputs.assert_not_awaited()
+    mock_client.read_partitions.assert_not_awaited()
     coordinator = entry.runtime_data
     mock_client.read_inputs.side_effect = TimeoutError
     await coordinator.async_refresh()

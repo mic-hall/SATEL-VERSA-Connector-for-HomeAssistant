@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Połączenie z VERSĄ",
-        "description": "Rozłącz DLOADX przed połączeniem. Opcjonalne wyjścia ETHM pokazują kolory wskaźników DLOADX, niepotwierdzone jako fizyczne ON/OFF. PIN otwierania programu nie jest potrzebny.",
+        "description": "Rozłącz DLOADX przed połączeniem. Opcjonalne wyjścia ETHM pokazują kolory wskaźników DLOADX, niepotwierdzone jako fizyczne ON/OFF. PIN otwierania programu nie jest potrzebny. Strefy: uzbrojenie/rozbrojenie potwierdzono na jednej instalacji; tryby nocny/dzienny i flagi alarmów opierają się na kodzie DLOADX i wymagają dalszej walidacji.",
         "data": {
           "host": "Adres centrali",
           "port": "Port",
@@ -13,7 +13,8 @@
           "panel_id": "Identyfikator VERSA (8 znaków hex)",
           "inputs": "Numery wejść (np. 1-8,10)",
           "poll_interval": "Odstęp odczytu (sekundy)",
-          "outputs": "Numery wyjść ETHM (opcjonalne, np. 1-4; puste wyłącza odczyt)"
+          "outputs": "Numery wyjść ETHM (opcjonalne, np. 1-4; puste wyłącza odczyt)",
+          "partitions": "Strefy ETHM (opcjonalne: 1=A, 2=B; puste wyłącza odczyt)"
         }
       },
       "reconfigure": {
@@ -27,7 +28,8 @@
           "panel_id": "Identyfikator VERSA (8 znaków hex)",
           "inputs": "Numery wejść (np. 1-8,10)",
           "poll_interval": "Odstęp odczytu (sekundy)",
-          "outputs": "Numery wyjść ETHM (opcjonalne, np. 1-4; puste wyłącza odczyt)"
+          "outputs": "Numery wyjść ETHM (opcjonalne, np. 1-4; puste wyłącza odczyt)",
+          "partitions": "Strefy ETHM (opcjonalne: 1=A, 2=B; puste wyłącza odczyt)"
         }
       }
     },
@@ -40,7 +42,8 @@
       "invalid_interval": "Wybierz odstęp od 1 do 60 sekund.",
       "wrong_panel": "Identyfikator VERSA musi odpowiadać temu wpisowi. Aby zmienić centralę, usuń integrację i dodaj ją ponownie.",
       "cannot_unload": "Nie udało się zatrzymać integracji. Spróbuj ponownie uruchomić Home Assistant.",
-      "invalid_outputs": "Podaj numery wyjść od 1 do 12 albo pozostaw puste."
+      "invalid_outputs": "Podaj numery wyjść od 1 do 12 albo pozostaw puste.",
+      "invalid_partitions": "Podaj 1, 2 lub 1,2, albo pozostaw puste."
     },
     "abort": {
       "already_configured": "Ta centrala jest już skonfigurowana.",
@@ -50,25 +53,63 @@
   "options": {
     "step": {
       "init": {
-        "title": "Odczyt wejść i wyjść",
+        "title": "Odczyt wejść, wyjść i stref",
         "data": {
           "inputs": "Numery wejść (np. 1-8,10)",
           "poll_interval": "Odstęp odczytu (sekundy)",
-          "outputs": "Numery wyjść ETHM (opcjonalne, np. 1-4; puste wyłącza odczyt)"
+          "outputs": "Numery wyjść ETHM (opcjonalne, np. 1-4; puste wyłącza odczyt)",
+          "partitions": "Strefy ETHM (opcjonalne: 1=A, 2=B; puste wyłącza odczyt)"
         },
-        "description": "Wyjścia tylko dla ETHM-1 Plus. Stany: zielony, czerwony lub migający. Znaczenie fizycznego ON/OFF nie jest jeszcze potwierdzone."
+        "description": "Wyjścia tylko dla ETHM-1 Plus. Stany: zielony, czerwony lub migający. Znaczenie fizycznego ON/OFF nie jest jeszcze potwierdzone. Strefy: uzbrojenie/rozbrojenie potwierdzono na jednej instalacji; tryby nocny/dzienny i flagi alarmów opierają się na kodzie DLOADX i wymagają dalszej walidacji."
       }
     },
     "error": {
       "invalid_inputs": "Podaj numery wejść od 1 do 30, np. 1-8,10.",
       "invalid_interval": "Wybierz odstęp od 1 do 60 sekund.",
-      "invalid_outputs": "Podaj numery wyjść od 1 do 12 albo pozostaw puste."
+      "invalid_outputs": "Podaj numery wyjść od 1 do 12 albo pozostaw puste.",
+      "invalid_partitions": "Podaj 1, 2 lub 1,2, albo pozostaw puste."
     }
   },
   "entity": {
     "binary_sensor": {
       "input": {
         "name": "Wejście {number}"
+      },
+      "partition_exit_delay": {
+        "name": "Strefa {number} — Czas na wyjście"
+      },
+      "partition_entry_delay": {
+        "name": "Strefa {number} — Czas na wejście"
+      },
+      "partition_fire_alarm": {
+        "name": "Strefa {number} — Alarm pożarowy"
+      },
+      "partition_alarm": {
+        "name": "Strefa {number} — Alarm"
+      },
+      "partition_warning_alarm": {
+        "name": "Strefa {number} — Alarm ostrzegawczy (cichy)"
+      },
+      "partition_tamper_alarm": {
+        "name": "Strefa {number} — Alarm sabotażowy"
+      },
+      "partition_fire_alarm_memory": {
+        "name": "Strefa {number} — Pamięć alarmu pożarowego"
+      },
+      "partition_alarm_memory": {
+        "name": "Strefa {number} — Pamięć alarmu"
+      },
+      "partition_silent_alarm_memory": {
+        "name": "Strefa {number} — Pamięć alarmu cichego"
+      },
+      "partition_tamper_alarm_memory": {
+        "name": "Strefa {number} — Pamięć alarmu sabotażowego"
+      },
+      "partition_verified_alarm": {
+        "name": "Strefa {number} — Alarm zweryfikowany (ACPO)"
+      },
+      "partition_acpo_blocked": {
+        "name": "Strefa {number} — ACPO zablokowane"
       }
     },
     "sensor": {
@@ -78,6 +119,15 @@
           "green": "Zielony",
           "red": "Czerwony",
           "blinking_green_red": "Migający zielony/czerwony"
+        }
+      },
+      "partition_arm_mode": {
+        "name": "Strefa {number} — czuwanie",
+        "state": {
+          "disarmed": "Rozbrojona",
+          "full": "Pełne",
+          "night": "Nocne",
+          "day": "Dzienne"
         }
       }
     }

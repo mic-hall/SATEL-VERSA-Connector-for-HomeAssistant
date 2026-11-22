@@ -6,6 +6,7 @@ from .const import (
     CONF_INPUTS,
     CONF_OUTPUTS,
     CONF_PANEL_ID,
+    CONF_PARTITIONS,
     CONF_POLL_INTERVAL,
     DEFAULT_POLL_INTERVAL,
 )
@@ -45,6 +46,21 @@ def parse_outputs(value: str) -> list[int]:
     return numbers
 
 
+def parse_partitions(value: str) -> list[int]:
+    """Optional partition selection: 1=A, 2=B; blank disables polling."""
+    if not isinstance(value, str):
+        raise ValueError("invalid_partitions")
+    if not value.strip():
+        return []
+    try:
+        numbers = parse_inputs(value)
+    except ValueError as err:
+        raise ValueError("invalid_partitions") from err
+    if any(number > 2 for number in numbers):
+        raise ValueError("invalid_partitions")
+    return numbers
+
+
 def validate_settings(data: dict) -> dict:
     """Normalize UI settings without silently truncating credentials."""
     result = dict(data)
@@ -64,6 +80,7 @@ def validate_settings(data: dict) -> dict:
         raise ValueError("invalid_key")
     result[CONF_INPUTS] = parse_inputs(data[CONF_INPUTS])
     result[CONF_OUTPUTS] = parse_outputs(data.get(CONF_OUTPUTS, ""))
+    result[CONF_PARTITIONS] = parse_partitions(data.get(CONF_PARTITIONS, ""))
     interval = data.get(CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL)
     if (
         isinstance(interval, bool)

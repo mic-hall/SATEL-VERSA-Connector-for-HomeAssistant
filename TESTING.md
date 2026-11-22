@@ -108,3 +108,28 @@ output replies were constant. This confirms the 71/09 wire layout, not physical
 ON/OFF semantics, blinking semantics or behavior of the new client against live
 hardware. Output polling remains opt-in, read-only and ETHM-only. No physical
 panel connection or HA deployment was performed for this change.
+
+## Unreleased ETHM partition entities (2026-11-22)
+
+The local suite passes 100 tests, with about 93% branch-inclusive coverage.
+Ruff lint and formatting pass. Protocol tests cover partition modes, entry/exit
+delay, ACPO, current alarms vs memories, isolation of A/B, invalid profiles,
+serialized reads and cleanup after checksum/selector/EOF/timeout failures. LTE
+partition selection is rejected before START. Legacy entries send no extra read.
+
+HA fixtures cover enum and binary sensor updates, alarm/memory separation,
+unavailable/recovery/unload behavior, selection changes and registry cleanup,
+setup/options validation and probe cleanup. Memory and ACPO flags are disabled
+by default. Existing input/output tests continue to pass.
+
+The production codec decrypted and parsed 187 partition replies and regenerated
+209 selector0 requests byte for byte from a new private recording. A/B arming and
+disarming match the user's reported actions. Full mode and exit delay follow the
+statically recovered DLOADX labels. All received partition alarm bytes were zero,
+so active alarm, night/day, entry-delay and memory semantics still have static
+code evidence only. The capture has three missing 16-byte client fragments and
+one missing 33-byte server fragment; these were not filled or guessed. Continuous
+captured ranges replay correctly across arbitrary chunk boundaries.
+
+No live connection or HA deployment was performed for these changes. Research
+binaries, PCAPs, keys, user IDs and private plaintexts are not packaged or published.

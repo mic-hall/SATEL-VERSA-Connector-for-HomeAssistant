@@ -20,6 +20,10 @@ class FakeModule:
     def __init__(self, versa=False):
         self.versa = versa
         self.corrupt = False
+        self.bad_partition = False
+        self.partition_mode = 1
+        self.partition_alarm = 0
+        self.partition_notification = False
         self.bad_output = False
         self.output_notification = False
         self.reader = asyncio.StreamReader()
@@ -71,9 +75,17 @@ class FakeModule:
                 if self.output_notification:
                     self.output_notification = False
                     body = b"\x07\x1a\x00"
+            elif frame.body == b"\x00":
+                op, body = 0x71, bytearray(16)
+                body[0] = 1 if self.bad_partition else 0
+                body[1] = self.partition_mode
+                body[5] = self.partition_alarm
+                if self.partition_notification:
+                    self.partition_notification = False
+                    body = b"\x07\x1a\x00"
             elif frame.body != b"\x01":
                 raise ValueError("Wrong selector")
-            if frame.body == b"\x09":
+            if frame.body in (b"\x00", b"\x09"):
                 pass
             elif self.online_events:
                 remaining = self.online_events
@@ -316,6 +328,60 @@ class ClientTests(unittest.IsolatedAsyncioTestCase):
     async def test_versa_output_configuration_rejected_before_start(self):
         module = FakeModule(versa=True)
         client = self.client(module, output_numbers=[1])
+        with self.assertRaises(ValueError):
+            await client.connect()
+        self.assertEqual(module.requests, [])
+        self.assertTrue(module.closed)
+
+    async def test_partition_poll_tracks_mode_delay_and_separate_memory(self):
+        module = FakeModule()
+        client = self.client(module, partition_numbers=[1, 2])
+        await client.connect()
+        module.partition_notification = True
+        states = await client.read_partitions()
+        self.assertEqual(states[0].arm_mode.value, "full")
+        self.assertTrue(states[0].exit_delay)
+        module.partition_mode = 5
+        module.partition_alarm = 8
+        states, inputs = await asyncio.gather(client.read_partitions(), client.read_inputs())
+        self.assertFalse(states[0].exit_delay)
+        self.assertTrue(states[0].fire_alarm_memory)
+        self.assertFalse(states[0].fire_alarm)
+        module.partition_alarm = 128
+        self.assertTrue((await client.read_partitions())[0].fire_alarm)
+        module.partition_mode = 0
+        module.partition_alarm = 0
+        self.assertEqual((await client.read_partitions())[0].arm_mode.value, "disarmed")
+        self.assertEqual(client.partition_states[0].arm_mode.value, "disarmed")
+        await client.close()
+        self.assertIsNone(client.partition_states)
+
+    async def test_partition_failure_clears_all_snapshots(self):
+        for failure in ("bad_partition", "corrupt", "eof_poll", "hang_poll"):
+            module = FakeModule()
+            client = self.client(module, partition_numbers=[1], output_numbers=[1], timeout=0.05)
+            await client.connect()
+            await client.read_inputs()
+            await client.read_outputs()
+            await client.read_partitions()
+            setattr(module, failure, True)
+            with self.assertRaises((ValueError, TimeoutError, asyncio.IncompleteReadError)):
+                await client.read_partitions()
+            self.assertIsNone(client.inputs)
+            self.assertIsNone(client.output_indicators)
+            self.assertIsNone(client.partition_states)
+            self.assertTrue(module.closed)
+
+    async def test_disabled_and_lte_partitions_never_send_poll(self):
+        module = FakeModule()
+        client = self.client(module)
+        await client.connect()
+        requests = list(module.requests)
+        self.assertEqual(await client.read_partitions(), ())
+        self.assertEqual(module.requests, requests)
+        await client.close()
+        module = FakeModule(versa=True)
+        client = self.client(module, partition_numbers=[1])
         with self.assertRaises(ValueError):
             await client.connect()
         self.assertEqual(module.requests, [])

@@ -1,4 +1,4 @@
-"""Read-only SATEL VERSA inputs and optional ETHM output indicators."""
+"""Read-only VERSA inputs and optional ETHM outputs and partitions."""
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import EVENT_HOMEASSISTANT_STOP, Platform

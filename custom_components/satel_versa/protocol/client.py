@@ -9,6 +9,7 @@ import secrets
 
 from .codec import derive_key, parse_frame, request_record, server_record_size, transform
 from .outputs import decode_output_indicators
+from .partitions import decode_partitions
 from .session import CommandRejected, Phase, SessionEvidence, identifier_bytes, parse_identity
 
 
@@ -31,6 +32,7 @@ class VersaClient:
         connector=None,
         read_display=None,
         output_numbers=(),
+        partition_numbers=(),
     ):
         if timeout is not None and timeout <= 0:
             raise ValueError("Timeout must be positive")
@@ -41,6 +43,9 @@ class VersaClient:
         self._output_numbers = list(output_numbers)
         decode_output_indicators(0x71, b"\x09" + bytes(15), self._output_numbers)
         self.output_indicators = None
+        self._partition_numbers = list(partition_numbers)
+        decode_partitions(0x71, bytes(16), self._partition_numbers)
+        self.partition_states = None
         self._configured_timeout = timeout
         self.timeout = 5 if timeout is None else timeout
         self._connector = connector or asyncio.open_connection
@@ -68,6 +73,7 @@ class VersaClient:
         self._token = None
         self.evidence.disconnect()
         self.output_indicators = None
+        self.partition_states = None
         if writer is not None:
             writer.close()
             try:
@@ -116,8 +122,10 @@ class VersaClient:
                 self._versa = greeting[1:6] == b"VERSA"
                 if not self._versa and b"ETHM" not in greeting:
                     raise ValueError("Unsupported greeting or key")
-                if self._versa and self._output_numbers:
-                    raise ValueError("Output indicators are supported only over ETHM")
+                if self._versa and (self._output_numbers or self._partition_numbers):
+                    raise ValueError(
+                        "Output indicators and partitions are supported only over ETHM"
+                    )
                 self._token = greeting[0]
                 self.evidence.begin()
                 if self._versa:
@@ -146,8 +154,10 @@ class VersaClient:
                 raise ValueError("Not connected")
 
             async def operation():
-                if selector == 9 and self._versa:
-                    raise ValueError("Output indicators are supported only over ETHM")
+                if selector in (0, 9) and self._versa:
+                    raise ValueError(
+                        "Output indicators and partitions are supported only over ETHM"
+                    )
                 # Native receiver case 71/07 routes an online notification.
                 # It can take the place of a poll reply immediately after START.
                 # Native dispatch accepts an embedded online opcode after 07.
@@ -181,6 +191,18 @@ class VersaClient:
             return states
 
         return await self._poll(9, decode)
+
+    async def read_partitions(self):
+        """Read selected ETHM partitions without arming or disarming."""
+        if not self._partition_numbers:
+            return ()
+
+        def decode(opcode, body):
+            states = decode_partitions(opcode, body, self._partition_numbers)
+            self.partition_states = states
+            return states
+
+        return await self._poll(0, decode)
 
     async def close(self):
         async with self._lock:

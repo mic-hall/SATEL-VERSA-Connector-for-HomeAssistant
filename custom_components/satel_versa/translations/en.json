@@ -4,7 +4,7 @@
     "step": {
       "user": {
         "title": "Connect to VERSA",
-        "description": "Disconnect DLOADX before connecting. Optional ETHM outputs show DLOADX indicator colors, not yet verified as physical ON/OFF. The program opening PIN is not needed.",
+        "description": "Disconnect DLOADX before connecting. Optional ETHM outputs show DLOADX indicator colors, not yet verified as physical ON/OFF. The program opening PIN is not needed. Partitions: arming/disarming was correlated on one installation; night/day modes and alarm flags rely on DLOADX code and require further validation.",
         "data": {
           "host": "Host",
           "port": "Port",
@@ -13,7 +13,8 @@
           "panel_id": "VERSA identifier (8 hex characters)",
           "inputs": "Input numbers (for example 1-8,10)",
           "poll_interval": "Polling interval (seconds)",
-          "outputs": "ETHM output numbers (optional, e.g. 1-4; blank disables polling)"
+          "outputs": "ETHM output numbers (optional, e.g. 1-4; blank disables polling)",
+          "partitions": "ETHM partitions (optional: 1=A, 2=B; blank disables polling)"
         }
       },
       "reconfigure": {
@@ -27,7 +28,8 @@
           "panel_id": "VERSA identifier (8 hex characters)",
           "inputs": "Input numbers (for example 1-8,10)",
           "poll_interval": "Polling interval (seconds)",
-          "outputs": "ETHM output numbers (optional, e.g. 1-4; blank disables polling)"
+          "outputs": "ETHM output numbers (optional, e.g. 1-4; blank disables polling)",
+          "partitions": "ETHM partitions (optional: 1=A, 2=B; blank disables polling)"
         }
       }
     },
@@ -40,7 +42,8 @@
       "invalid_interval": "Choose an interval from 1 to 60 seconds.",
       "wrong_panel": "The VERSA identifier must match this entry. Remove and add the integration to use a different panel.",
       "cannot_unload": "The running integration could not be stopped. Try restarting Home Assistant.",
-      "invalid_outputs": "Use output numbers from 1 to 12, or leave blank."
+      "invalid_outputs": "Use output numbers from 1 to 12, or leave blank.",
+      "invalid_partitions": "Use 1, 2 or 1,2, or leave blank."
     },
     "abort": {
       "already_configured": "This panel is already configured.",
@@ -50,25 +53,63 @@
   "options": {
     "step": {
       "init": {
-        "title": "Input and output polling",
+        "title": "Input, output and partition polling",
         "data": {
           "inputs": "Input numbers (for example 1-8,10)",
           "poll_interval": "Polling interval (seconds)",
-          "outputs": "ETHM output numbers (optional, e.g. 1-4; blank disables polling)"
+          "outputs": "ETHM output numbers (optional, e.g. 1-4; blank disables polling)",
+          "partitions": "ETHM partitions (optional: 1=A, 2=B; blank disables polling)"
         },
-        "description": "Outputs are for ETHM-1 Plus only. States are green, red or blinking. Physical ON/OFF semantics are not yet verified."
+        "description": "Outputs are for ETHM-1 Plus only. States are green, red or blinking. Physical ON/OFF semantics are not yet verified. Partitions: arming/disarming was correlated on one installation; night/day modes and alarm flags rely on DLOADX code and require further validation."
       }
     },
     "error": {
       "invalid_inputs": "Use input numbers from 1 to 30, for example 1-8,10.",
       "invalid_interval": "Choose an interval from 1 to 60 seconds.",
-      "invalid_outputs": "Use output numbers from 1 to 12, or leave blank."
+      "invalid_outputs": "Use output numbers from 1 to 12, or leave blank.",
+      "invalid_partitions": "Use 1, 2 or 1,2, or leave blank."
     }
   },
   "entity": {
     "binary_sensor": {
       "input": {
         "name": "Input {number}"
+      },
+      "partition_exit_delay": {
+        "name": "Partition {number} exit delay"
+      },
+      "partition_entry_delay": {
+        "name": "Partition {number} entry delay"
+      },
+      "partition_fire_alarm": {
+        "name": "Partition {number} fire alarm"
+      },
+      "partition_alarm": {
+        "name": "Partition {number} alarm"
+      },
+      "partition_warning_alarm": {
+        "name": "Partition {number} warning alarm (silent)"
+      },
+      "partition_tamper_alarm": {
+        "name": "Partition {number} tamper alarm"
+      },
+      "partition_fire_alarm_memory": {
+        "name": "Partition {number} fire alarm memory"
+      },
+      "partition_alarm_memory": {
+        "name": "Partition {number} alarm memory"
+      },
+      "partition_silent_alarm_memory": {
+        "name": "Partition {number} silent alarm memory"
+      },
+      "partition_tamper_alarm_memory": {
+        "name": "Partition {number} tamper alarm memory"
+      },
+      "partition_verified_alarm": {
+        "name": "Partition {number} verified alarm (acpo)"
+      },
+      "partition_acpo_blocked": {
+        "name": "Partition {number} acpo blocked"
       }
     },
     "sensor": {
@@ -78,6 +119,15 @@
           "green": "Green",
           "red": "Red",
           "blinking_green_red": "Blinking green/red"
+        }
+      },
+      "partition_arm_mode": {
+        "name": "Partition {number} arm mode",
+        "state": {
+          "disarmed": "Disarmed",
+          "full": "Full",
+          "night": "Night",
+          "day": "Day"
         }
       }
     }

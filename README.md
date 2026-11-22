@@ -161,3 +161,34 @@ A failed read makes all entities unavailable until the complete cycle succeeds;
 old states are not published as fresh data. Removing a selected output removes
 its entity on reload. Raw status bytes are not exposed in entity attributes or
 integration diagnostics. No output switching command is implemented.
+
+## Optional ETHM partition entities
+
+In Configure, enter **ETHM partitions**: `1` for A, `2` for B, or `1,2` for both.
+The field is also available during setup and Reconfigure. Blank disables the
+extra poll and is the default for existing entries. Partition support currently
+requires ETHM-1 Plus; the LTE profile rejects this option before START.
+
+Each selected partition adds a **Partition N arm mode** enum sensor with states
+`disarmed`, `full`, `night`, `day`, plus separate binary sensors for entry delay,
+exit delay, alarm, fire alarm, tamper alarm and warning (silent) alarm. During exit
+delay the mode reflects the selected arming mode; check the separate delay flag
+before treating it as fully armed. Current alarms are independent of the mode.
+
+Alarm memories and verified alarm/ACPO-blocked flags are separate entities,
+disabled by default in the entity registry. Enable them individually if needed.
+A remembered fire alarm never activates the current fire alarm sensor. The
+ordinary flag is labelled **Alarm**, following DLOADX; classification specifically
+as burglary has not been independently established. There is no arm/disarm action
+or alarm-control-panel entity.
+
+One shared selector0 read per cycle updates all selected partitions. A cycle is
+published only after every configured read succeeds; failures make entities
+unavailable until recovery. Deselected partition entities are removed on reload.
+User identifiers from the response are ignored and not exposed in HA.
+
+Arming/disarming of both partitions was correlated with user-reported actions on
+one VERSA + ETHM installation. Full mode and exit delay were decoded in the same
+recording. Night/day modes, entry delay, alarm flags and memories are mapped from
+DLOADX code but lack active hardware examples in our validation capture. The new
+client/HA behavior has automated tests, not a live deployment validation.

@@ -1,6 +1,11 @@
 import pytest
 
-from custom_components.satel_versa.settings import parse_inputs, parse_outputs, validate_settings
+from custom_components.satel_versa.settings import (
+    parse_inputs,
+    parse_outputs,
+    parse_partitions,
+    validate_settings,
+)
 
 from .conftest import FORM
 
@@ -44,3 +49,16 @@ def test_optional_outputs_and_legacy_configuration():
 def test_invalid_output_ranges(value):
     with pytest.raises(ValueError, match="invalid_outputs"):
         parse_outputs(value)
+
+
+def test_partition_selection_and_legacy_defaults():
+    assert parse_partitions("") == []
+    assert parse_partitions("1-2,2") == [1, 2]
+    assert validate_settings(FORM)["partitions"] == []
+    assert validate_settings(FORM | {"partitions": "2"})["partitions"] == [2]
+
+
+@pytest.mark.parametrize("value", ["0", "3", "1-3", "2-1", None, [1]])
+def test_invalid_partition_selection(value):
+    with pytest.raises(ValueError, match="invalid_partitions"):
+        parse_partitions(value)

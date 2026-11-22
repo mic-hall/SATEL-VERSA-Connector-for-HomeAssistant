@@ -15,6 +15,7 @@ from .const import (
     CONF_INPUTS,
     CONF_OUTPUTS,
     CONF_PANEL_ID,
+    CONF_PARTITIONS,
     CONF_POLL_INTERVAL,
     DEFAULT_POLL_INTERVAL,
     DOMAIN,
@@ -23,6 +24,7 @@ from .const import (
 from .protocol import VersaClient
 from .protocol.inputs import InputState
 from .protocol.outputs import OutputIndicator
+from .protocol.partitions import PartitionState
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,6 +40,7 @@ def create_client(data: dict, options: dict | None = None) -> VersaClient:
         data[CONF_PANEL_ID],
         settings[CONF_INPUTS],
         output_numbers=settings.get(CONF_OUTPUTS, []),
+        partition_numbers=settings.get(CONF_PARTITIONS, []),
     )
 
 
@@ -45,6 +48,7 @@ def create_client(data: dict, options: dict | None = None) -> VersaClient:
 class VersaSnapshot:
     inputs: dict[int, InputState]
     outputs: dict[int, OutputIndicator]
+    partitions: dict[int, PartitionState]
 
 
 class VersaCoordinator(DataUpdateCoordinator[VersaSnapshot]):
@@ -53,6 +57,7 @@ class VersaCoordinator(DataUpdateCoordinator[VersaSnapshot]):
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.client = create_client(entry.data, entry.options)
         self._outputs = entry.options.get(CONF_OUTPUTS, entry.data.get(CONF_OUTPUTS, []))
+        self._partitions = entry.options.get(CONF_PARTITIONS, entry.data.get(CONF_PARTITIONS, []))
         self._normal_interval = float(
             entry.options.get(
                 CONF_POLL_INTERVAL, entry.data.get(CONF_POLL_INTERVAL, DEFAULT_POLL_INTERVAL)
@@ -77,6 +82,7 @@ class VersaCoordinator(DataUpdateCoordinator[VersaSnapshot]):
                 await self.client.connect()
             states = await self.client.read_inputs()
             outputs = await self.client.read_outputs() if self._outputs else ()
+            partitions = await self.client.read_partitions() if self._partitions else ()
         except (OSError, TimeoutError, ValueError, EOFError) as err:
             self._failures += 1
             delay = min(MAX_RETRY_SECONDS, max(5, 2 ** min(self._failures, 6)))
@@ -88,6 +94,7 @@ class VersaCoordinator(DataUpdateCoordinator[VersaSnapshot]):
         return VersaSnapshot(
             {state.number: state for state in states},
             {state.number: state for state in outputs},
+            {state.number: state for state in partitions},
         )
 
     async def async_close(self) -> None:

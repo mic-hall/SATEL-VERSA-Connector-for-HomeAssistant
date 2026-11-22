@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Add optional ETHM partition selection (1=A, 2=B) and shared selector0 polling.
+- Expose partition arm mode and independent delay/current alarm binary sensors.
+- Keep alarm memory and ACPO entities separate and disabled by default.
+- Preserve existing input/output entities and opt out legacy entries by default.
+- Correlate arming/disarming with a recording; document static-only validation
+  of other modes and alarm flags. No arming/disarming commands are added.
+
 - Add opt-in ETHM output indicator sensors for positions 1–12, with green, red
   and blinking green/red states matching DLOADX. Physical ON/OFF is unverified.
 - Add output selection to setup/reconfiguration/options, serialized read-only
