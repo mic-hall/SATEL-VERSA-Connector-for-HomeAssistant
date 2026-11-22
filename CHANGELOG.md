@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add read-only alarm_control_panel entities for selected ETHM partitions,
+  sharing the existing snapshots and preserving existing sensor identities.
+- Map current alarms, entry/exit delays and arm modes with explicit priority;
+  exclude memories and ACPO-only flags from triggered state.
+- Reject all sync/async alarm controls and report a localized read-only error.
+
 - Add optional ETHM partition selection (1=A, 2=B) and shared selector0 polling.
 - Expose partition arm mode and independent delay/current alarm binary sensors.
 - Keep alarm memory and ACPO entities separate and disabled by default.

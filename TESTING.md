@@ -133,3 +133,27 @@ captured ranges replay correctly across arbitrary chunk boundaries.
 
 No live connection or HA deployment was performed for these changes. Research
 binaries, PCAPs, keys, user IDs and private plaintexts are not packaged or published.
+
+## Unreleased read-only alarm panels (2026-11-22)
+
+The local suite passes 115 tests with about 94% branch-inclusive coverage; the
+new alarm panel module has about 97% coverage. Ruff lint and formatting pass.
+Each configured ETHM partition adds an alarm_control_panel entity backed by the
+existing coordinator snapshot, with no additional reads or protocol changes.
+
+HA tests cover arm mode mappings, priority of current alarms over entry/exit
+delays, memory/ACPO exclusion from triggered state, alarms while disarmed,
+partition isolation, availability/recovery/unload and entity registry cleanup.
+The same panel device and existing sensor identities are preserved.
+
+All seven synchronous and seven asynchronous control methods explicitly reject
+requests. Tests also invoke all seven registered HA alarm actions, including
+disarm (which has no feature gate), and verify no protocol client calls or
+optimistic state changes occur. Controls expose zero supported feature flags
+and a localized read-only error. The frontend may still offer Disarm because
+that operation is always part of HA's alarm domain.
+
+The existing hardware validation limits remain: active alarm flags and night/day
+modes have static DLOADX evidence, without controlled physical examples in the
+validation capture. No live panel connection or HA deployment was performed for
+this change.

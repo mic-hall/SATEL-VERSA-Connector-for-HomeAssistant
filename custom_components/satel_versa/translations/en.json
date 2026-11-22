@@ -130,6 +130,16 @@
           "day": "Day"
         }
       }
+    },
+    "alarm_control_panel": {
+      "partition_alarm": {
+        "name": "Partition {number} alarm"
+      }
+    }
+  },
+  "exceptions": {
+    "read_only": {
+      "message": "The SATEL VERSA integration is read-only. Alarm control is unavailable."
     }
   }
 }

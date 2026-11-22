@@ -101,7 +101,7 @@ Pamięci alarmów i flagi ACPO są osobnymi encjami, domyślnie wyłączonymi
 w rejestrze encji; można je włączyć indywidualnie. Pamięć pożaru nie włącza
 czujnika bieżącego alarmu pożarowego. Nazwa zwykłej flagi to **Alarm**, zgodnie
 z DLOADX; nie przypisujemy jej jeszcze jednoznacznie do alarmu włamaniowego.
-Nie dodano uzbrajania, rozbrajania ani encji alarm_control_panel.
+Dodano encje alarm_control_panel tylko do odczytu; akcje sterujące są blokowane.
 
 Wszystkie wybrane strefy korzystają z jednego odczytu na cykl. Błąd dowolnego
 skonfigurowanego odczytu powoduje niedostępność encji do czasu poprawnego pełnego
@@ -113,3 +113,37 @@ instalacji VERSA + ETHM. Czuwanie pełne i czas na wyjście odczytano w tym samy
 nagraniu. Tryby nocny/dzienny, czas na wejście, alarmy i ich pamięci rozpoznano
 z kodu DLOADX, ale nie potwierdzono aktywnymi przykładami sprzętowymi. Nowy kod
 klienta i encje HA przeszły testy automatyczne; nie wdrażano ich jeszcze do HA.
+
+## Panele alarmowe tylko do odczytu
+
+Dla każdej wybranej strefy ETHM powstaje też encja `alarm_control_panel`
+**Strefa N — alarm**, przypisana do obecnego urządzenia VERSA. Korzysta
+z dotychczasowego pola **Strefy ETHM** (`1`, `2` lub `1,2`) i tych samych
+odczytów. Nie wymaga nowego ustawienia ani dodatkowych danych dostępowych.
+Istniejące encje czuwania i flag pozostają dostępne pod swoimi identyfikatorami.
+
+| Odczytany stan | Stan alarmu HA |
+|---|---|
+| Bieżący alarm, pożarowy, sabotażowy lub ostrzegawczy (cichy) | Wyzwolony (`triggered`) |
+| Czas na wejście, bez aktywnego alarmu | Oczekiwanie (`pending`) |
+| Czas na wyjście, bez aktywnego alarmu i czasu na wejście | Uzbrajanie (`arming`) |
+| Czuwanie pełne | Uzbrojony poza domem (`armed_away`) |
+| Czuwanie nocne | Uzbrojony na noc (`armed_night`) |
+| Czuwanie dzienne | Uzbrojony w domu (`armed_home`) |
+| Rozbrojona | Rozbrojony (`disarmed`) |
+| Błąd odczytu, brak danych strefy lub wyłączenie integracji | Niedostępny |
+
+Kolejność tabeli ustala priorytet. Pożar/sabotaż może pokazać alarm także
+w rozbrojonej strefie. Sama pamięć alarmu lub flaga ACPO nie wyzwala panelu.
+Mapowanie czuwania dziennego na „w domu” jest konwencją tej integracji.
+Osobne czujniki nadal wskazują rodzaj alarmu i jego pamięć.
+
+Wszystkie metody uzbrajania, rozbrajania i wyzwalania są jawnie blokowane.
+HA może mimo to pokazywać przycisk Rozbrój, ponieważ domena alarmu zawsze
+udostępnia tę akcję. Jej wywołanie zwraca komunikat „tylko do odczytu”,
+bez wysyłania komendy i bez zmiany prezentowanego stanu. Integracja nie prosi
+o PIN alarmu. Encje można wykorzystać do podglądu, historii i automatyzacji.
+
+Testy HA potwierdzają mapowanie i odzyskiwanie dostępności. Zakres dowodów
+sprzętowych pozostaje taki jak dla opisanych wyżej stref; nowa warstwa HA
+nie stanowi dodatkowej walidacji aktywnych alarmów.

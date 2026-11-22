@@ -6,7 +6,7 @@ from homeassistant.core import HomeAssistant
 
 from .coordinator import VersaCoordinator
 
-PLATFORMS = [Platform.BINARY_SENSOR, Platform.SENSOR]
+PLATFORMS = [Platform.BINARY_SENSOR, Platform.SENSOR, Platform.ALARM_CONTROL_PANEL]
 type VersaConfigEntry = ConfigEntry[VersaCoordinator]
 
 

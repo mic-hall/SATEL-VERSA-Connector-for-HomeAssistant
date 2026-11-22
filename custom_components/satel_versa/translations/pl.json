@@ -130,6 +130,16 @@
           "day": "Dzienne"
         }
       }
+    },
+    "alarm_control_panel": {
+      "partition_alarm": {
+        "name": "Strefa {number} — alarm"
+      }
+    }
+  },
+  "exceptions": {
+    "read_only": {
+      "message": "Integracja SATEL VERSA działa tylko do odczytu. Sterowanie alarmem jest niedostępne."
     }
   }
 }

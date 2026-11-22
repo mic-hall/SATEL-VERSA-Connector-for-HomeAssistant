@@ -111,7 +111,8 @@ through HACS, remove the repository there as well.
   responses under one timeout (5 s for ETHM, 15 s for VERSA Plus LTE). Persistent
   notifications fail the poll.
 - Command rejection is not automatically classified as an invalid password.
-- No names import, configuration-file import, output control or alarm panel entity.
+- No names import, configuration-file import or output control. Alarm panel entities
+  are read-only.
 - Experimental output indicators report DLOADX colors; physical ON/OFF semantics
   have not been verified.
 - A successful read is not a test of the alarm installation or a replacement for
@@ -179,8 +180,7 @@ Alarm memories and verified alarm/ACPO-blocked flags are separate entities,
 disabled by default in the entity registry. Enable them individually if needed.
 A remembered fire alarm never activates the current fire alarm sensor. The
 ordinary flag is labelled **Alarm**, following DLOADX; classification specifically
-as burglary has not been independently established. There is no arm/disarm action
-or alarm-control-panel entity.
+as burglary has not been independently established. Alarm control actions are rejected; see the read-only alarm panels below.
 
 One shared selector0 read per cycle updates all selected partitions. A cycle is
 published only after every configured read succeeds; failures make entities
@@ -192,3 +192,39 @@ one VERSA + ETHM installation. Full mode and exit delay were decoded in the same
 recording. Night/day modes, entry delay, alarm flags and memories are mapped from
 DLOADX code but lack active hardware examples in our validation capture. The new
 client/HA behavior has automated tests, not a live deployment validation.
+
+## Read-only alarm panels
+
+Each selected ETHM partition also creates an `alarm_control_panel` entity named
+**Partition N alarm**, on the same VERSA device. Use the existing **ETHM partitions**
+field (`1`, `2`, or `1,2`); no new setting, credentials or extra protocol read is
+needed. Existing arm mode and binary sensors retain their identities.
+
+The mapping is:
+
+| Partition snapshot | HA alarm state |
+|---|---|
+| Any current alarm, fire, tamper or warning (silent) alarm | `triggered` |
+| Entry delay, without a current alarm | `pending` |
+| Exit delay, without a current alarm or entry delay | `arming` |
+| Full arming | `armed_away` |
+| Night arming | `armed_night` |
+| Day arming | `armed_home` |
+| Disarmed | `disarmed` |
+| Failed poll, missing partition or unload | `unavailable` |
+
+This priority order is deliberate. Current fire/tamper alarms can show
+`triggered` even while disarmed. Alarm memories and ACPO flags alone never
+trigger the panel. Day-to-home is a presentation convention of this integration.
+The individual binary sensors continue to distinguish alarm types and memories.
+
+All synchronous and asynchronous arm/disarm/trigger methods explicitly reject
+control. Supported control features are zero. HA may still display a Disarm
+control because its alarm domain always exposes disarming; using it returns a
+localized read-only error. It does not send a command or change the displayed
+state. The integration does not ask for an alarm PIN. Configure the dashboard
+for status viewing; the entities remain usable in history and automations.
+
+The state mapping is covered by HA tests, including failed polls and recovery.
+Hardware evidence has the same limits as the partition data above: the new HA
+alarm layer does not add physical validation of active alarms or other arm modes.
