@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.0-beta.3 — 2026-11-22
 
 - Add read-only alarm_control_panel entities for selected ETHM partitions,
   sharing the existing snapshots and preserving existing sensor identities.

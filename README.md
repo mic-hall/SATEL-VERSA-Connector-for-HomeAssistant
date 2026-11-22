@@ -2,7 +2,7 @@
 
 This is a custom integration allowing to read states of inputs of SATEL VERSA alarm systems locally through an **ETHM-1 Plus** expansion card. This custom integration is distributed under the MIT license.
 
-**Beta: 0.1.0-beta.2.** The protocol has been tested with one VERSA 15 +
+**Beta: 0.1.0-beta.3.** The protocol has been tested with one VERSA 15 +
 ETHM-1 Plus installation. Other models/firmware and long-running operation
 are not yet validated. This project is independent of SATEL.
 

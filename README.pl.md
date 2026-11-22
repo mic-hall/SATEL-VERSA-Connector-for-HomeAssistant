@@ -1,6 +1,6 @@
 # SATEL VERSA Bridge — integracja Home Assistant
 
-Lokalny odczyt stanów wejść VERSY przez ETHM-1 Plus. Wersja **0.1.0-beta.2**,
+Lokalny odczyt stanów wejść VERSY przez ETHM-1 Plus. Wersja **0.1.0-beta.3**,
 sprawdzona z VERSA 15; inne modele i firmware pozostają niezweryfikowane.
 
 Wymaga Home Assistant 2026.10.1 lub nowszego. Nie potrzebuje osobnego dodatku,

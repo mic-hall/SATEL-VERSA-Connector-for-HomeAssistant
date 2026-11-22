@@ -1,4 +1,18 @@
-# Validation record for 0.1.0-beta.2
+# Validation records
+
+## 0.1.0-beta.3 — 2026-11-22
+
+Local validation: 115 tests pass, about 94% branch-inclusive coverage, Ruff lint
+and formatting pass. The release includes optional ETHM output indicators,
+partition states and read-only alarm panels, plus experimental LTE input support.
+Recorded ETHM traffic validates wire formats; hardware evidence limits and
+read-only control tests are detailed in the dated sections below.
+
+GitHub validation of the feature commit passed Tests and release packages,
+Hassfest and HACS validation. The version commit is validated separately before
+tagging. No new live panel connection or HA deployment was performed.
+
+## Historical validation record for 0.1.0-beta.2
 
 Validated on 2026-11-06. This document states observed scope, not general hardware
 certification or a claim that all supported input numbers were physically tested.
